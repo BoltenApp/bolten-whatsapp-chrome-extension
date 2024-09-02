@@ -1,0 +1,25 @@
+{
+	"manifest_version": 3,
+	"name": "Bolten - Whatsapp Web Tools",
+	"version": "1.0",
+	"content_scripts": [
+		{
+			"matches": [
+				"https://web.whatsapp.com/*"
+			],
+			"js": [
+				"wppconnect-wa-3.9.0.js",
+				"my-code.js"
+			],
+			"world": "MAIN"
+		},
+		{
+			"matches": [
+				"https://web.whatsapp.com/*"
+			],
+			"js": [
+				"content.js"
+			]
+		}
+	]
+}
