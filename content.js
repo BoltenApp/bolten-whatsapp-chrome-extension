@@ -1,7 +1,6 @@
 
 function connect() {
 	webSocket = new WebSocket('wss://equipped-concise-owl.ngrok-free.app/cable');
-	// webSocket = new WebSocket('wss://example.com/ws');
 
 	webSocket.onopen = (event) => {
 		console.log('websocket open');
@@ -22,17 +21,25 @@ function connect() {
 		console.log(`websocket received message: ${event.data}`);
 		message = JSON.parse(event.data).message;
 
-		console.log(`message: ${message}`);
-
 		if (message) {
 			switch (message.action) {
 				case 'fetch_conversation':
-					console.log(`Fetching conversation from ${message}`);
+					console.log(`[WS] Fetching conversation from ${message}`);
 					window.dispatchEvent(new CustomEvent("ConversationRequested", {
 						detail: {
 							senderNumber: message.sender_number,
 							recipientNumber: message.recipient_number,
 							messageLimit: message.message_listing_limit,
+						}
+					}))
+					break;
+				case 'send_message_wpp_web':
+					console.log(`[WS] Message sent to ${message.recipient_number}`);
+					window.dispatchEvent(new CustomEvent("MessageDispatchRequested", {
+						detail: {
+							externalId: message.external_id,
+							recipientNumber: message.recipient_number,
+							message: message.message,
 						}
 					}))
 					break;
@@ -78,7 +85,6 @@ window.addEventListener("ConversationReceived", event => {
 	}
 
 	console.log("ConversationReceived")
-	console.log(event.detail)
 
 	const toSend = {
 		command: 'message',
@@ -87,38 +93,26 @@ window.addEventListener("ConversationReceived", event => {
 			body: JSON.stringify(event.detail)
 		}),
 		identifier: JSON.stringify({
-			id: 'otpx',
+			id: 'xpto',
 			channel: 'RoomChannel'
 		}),
 	};
 
 	webSocket.send(JSON.stringify(toSend));
 });
-window.addEventListener("NewMessageArrived", event => {
-	// parsedMsg = event.message
-	// console.log(event.detail);
-	// console.log("parsedMsg: " + JSON.stringify(event.body));
-	const msg = {
-		body: event.detail.body,
-		from: event.detail.from,
-		to: event.detail.to,
-		type: event.detail.type,
-		senderName: event.detail.senderName,
-		senderShortName: event.detail.senderShortName,
-		direction: 'outbound',
-		status: 'incomplete',
-	}
-	// console.log("Message: " + JSON.stringify(msg, null, 4));
 
+window.addEventListener("MessageSent", event => {
 	if (webSocket == null) {
 		connect();
 	}
 
+	console.log("MessageSent")
+
 	const toSend = {
 		command: 'message',
 		data: JSON.stringify({
-			action: 'display_received_message',
-			body: JSON.stringify(msg)
+			action: 'notify_message_sent',
+			body: JSON.stringify(event.detail)
 		}),
 		identifier: JSON.stringify({
 			id: 'xpto',
@@ -127,6 +121,37 @@ window.addEventListener("NewMessageArrived", event => {
 	};
 
 	webSocket.send(JSON.stringify(toSend));
+});
+
+window.addEventListener("NewMessageArrived", event => {
+	const msg = {
+		...event.detail,
+		direction: 'outbound',
+		status: 'delivered',
+	}
+
+	// if (msg.from === '5515997393918') {
+	if (true) {
+		if (webSocket == null) {
+			connect();
+		}
+
+		const toSend = {
+			command: 'message',
+			data: JSON.stringify({
+				action: 'display_received_message',
+				body: JSON.stringify(msg)
+			}),
+			identifier: JSON.stringify({
+				id: 'xpto',
+				channel: 'RoomChannel'
+			}),
+		};
+
+		webSocket.send(JSON.stringify(toSend));
+	} else {
+		console.log("Skipped message: ", msg);
+	}
 	// fetch("https://jsonplaceholder.typicode.com/todos", {
 	// 	method: "POST",
 	// 	body: JSON.stringify(event.msg),
