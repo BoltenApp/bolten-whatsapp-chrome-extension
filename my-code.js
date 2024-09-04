@@ -10,14 +10,17 @@
 	});
 
 	function isGroupMessage(msg) {
-		console.log(`Is Group Message: ${msg.__x_author.user !== msg.__x_from.user}`)
-		return msg.__x_author.user !== msg.__x_from.user;
+		return !!msg.__x_author?.user;
+	}
+
+	function isMessageToSelf(msg) {
+		return msg.__x_from.user === msg.__x_to.user;
 	}
 
 	WPP.on('chat.new_message', async (msg) => {
-		if (isGroupMessage(msg)) return;
+		if (isGroupMessage(msg) || isMessageToSelf(msg)) return;
 
-		const senderNumber = msg.__x_author.user
+		const senderNumber = msg.__x_from.user
 		const profilePicUrl = await WPP.contact.getProfilePictureUrl(`${senderNumber}@c.us`);
 
 		window.dispatchEvent(new CustomEvent("NewMessageArrived", {
@@ -38,10 +41,10 @@
 			id: msg.__x_id?.id,
 			rowId: msg.__x_rowId,
 			body: msg.__x_body,
-			from: msg.__x_author?.user,
+			from: msg.__x_from?.user,
 			to: msg.__x_to?.user,
 			type: msg.__x_type,
-			direction: msg.__x_author?.user == senderNumber ? 'outbound' : 'inbound',
+			direction: msg.__x_from?.user == senderNumber ? 'outbound' : 'inbound',
 			senderName: msg.__x_senderObj?.pushname,
 			senderShortName: msg.__x_senderObj?.shortName,
 			profilePicThumb: profilePicThumb,
