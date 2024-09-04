@@ -13,12 +13,8 @@
 		return !!msg.__x_author?.user;
 	}
 
-	function isMessageToSelf(msg) {
-		return msg.__x_from.user === msg.__x_to.user;
-	}
-
 	WPP.on('chat.new_message', async (msg) => {
-		if (isGroupMessage(msg) || isMessageToSelf(msg)) return;
+		if (isGroupMessage(msg)) return;
 
 		const senderNumber = msg.__x_from.user
 		const profilePicUrl = await WPP.contact.getProfilePictureUrl(`${senderNumber}@c.us`);

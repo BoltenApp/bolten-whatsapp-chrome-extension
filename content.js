@@ -7,7 +7,7 @@ function connect() {
 			command: 'subscribe',
 			identifier: JSON.stringify({
 				id: 'fbdd54b9-d7cf-441b-bdbd-1573f258c221',
-				channel: 'WhatsappWebClientUserChannel'
+				channel: 'ChatApp::WhatsappWebClientUserChannel'
 			}),
 		};
 
@@ -88,7 +88,7 @@ function sendActionToWebsocket(action, body) {
 		}),
 		identifier: JSON.stringify({
 			id: 'fbdd54b9-d7cf-441b-bdbd-1573f258c221',
-			channel: 'WhatsappWebClientUserChannel'
+			channel: 'ChatApp::WhatsappWebClientUserChannel'
 		}),
 	};
 
