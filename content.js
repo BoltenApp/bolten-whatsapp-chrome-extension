@@ -4,17 +4,24 @@ function connect() {
 
 	webSocket.onopen = (event) => {
 		console.log('websocket open');
-		// keepAlive();
 
-		const msg = {
+		// const subscribeCommand = {
+		// 	command: 'subscribe',
+		// 	identifier: JSON.stringify({
+		// 		id: 'xpto',
+		// 		channel: 'RoomChannel'
+		// 	}),
+		// };
+
+		const subscribeCommand = {
 			command: 'subscribe',
 			identifier: JSON.stringify({
-				id: 'xpto',
-				channel: 'RoomChannel'
+				id: 'fbdd54b9-d7cf-441b-bdbd-1573f258c221',
+				channel: 'WhatsppWebClientUserChannel'
 			}),
 		};
 
-		webSocket.send(JSON.stringify(msg));
+		webSocket.send(JSON.stringify(subscribeCommand));
 	};
 
 	webSocket.onmessage = (event) => {
@@ -23,7 +30,7 @@ function connect() {
 
 		if (message) {
 			switch (message.action) {
-				case 'fetch_conversation':
+				case 'fetch_conversation_on_whatsapp_web':
 					console.log(`[WS] Fetching conversation from ${message}`);
 					window.dispatchEvent(new CustomEvent("ConversationRequested", {
 						detail: {
@@ -33,7 +40,7 @@ function connect() {
 						}
 					}))
 					break;
-				case 'send_message_wpp_web':
+				case 'send_message_to_whatsapp_web':
 					console.log(`[WS] Message sent to ${message.recipient_number}`);
 					window.dispatchEvent(new CustomEvent("MessageDispatchRequested", {
 						detail: {
@@ -72,7 +79,6 @@ function keepAlive() {
 				clearInterval(keepAliveIntervalId);
 			}
 		},
-		// Set the interval to 20 seconds to prevent the service worker from becoming inactive.
 		15 * 1000
 	);
 }
@@ -86,19 +92,31 @@ window.addEventListener("ConversationReceived", event => {
 
 	console.log("ConversationReceived")
 
-	const toSend = {
+	// const fullConversation = {
+	// 	command: 'message',
+	// 	data: JSON.stringify({
+	// 		action: 'display_conversation',
+	// 		body: JSON.stringify(event.detail)
+	// 	}),
+	// 	identifier: JSON.stringify({
+	// 		id: 'xpto',
+	// 		channel: 'RoomChannel'
+	// 	}),
+	// };
+
+	const conversationPayload = {
 		command: 'message',
 		data: JSON.stringify({
-			action: 'display_conversation',
+			action: 'display_conversation_on_chat',
 			body: JSON.stringify(event.detail)
 		}),
 		identifier: JSON.stringify({
-			id: 'xpto',
-			channel: 'RoomChannel'
+			id: 'fbdd54b9-d7cf-441b-bdbd-1573f258c221',
+			channel: 'WhatsppWebClientUserChannel'
 		}),
 	};
 
-	webSocket.send(JSON.stringify(toSend));
+	webSocket.send(JSON.stringify(conversationPayload));
 });
 
 window.addEventListener("MessageSent", event => {
@@ -106,52 +124,65 @@ window.addEventListener("MessageSent", event => {
 		connect();
 	}
 
-	console.log("MessageSent")
+	// const messageDeliveredNotification = {
+	// 	command: 'message',
+	// 	data: JSON.stringify({
+	// 		action: 'notify_message_sent',
+	// 		body: JSON.stringify(event.detail)
+	// 	}),
+	// 	identifier: JSON.stringify({
+	// 		id: 'xpto',
+	// 		channel: 'RoomChannel'
+	// 	}),
+	// };
 
-	const toSend = {
+	const messageDeliveredNotificationPayload = {
 		command: 'message',
 		data: JSON.stringify({
-			action: 'notify_message_sent',
+			action: 'display_message_delivered_on_chat',
 			body: JSON.stringify(event.detail)
 		}),
 		identifier: JSON.stringify({
-			id: 'xpto',
-			channel: 'RoomChannel'
+			id: 'fbdd54b9-d7cf-441b-bdbd-1573f258c221',
+			channel: 'WhatsppWebClientUserChannel'
 		}),
 	};
 
-	webSocket.send(JSON.stringify(toSend));
+	webSocket.send(JSON.stringify(messageDeliveredNotificationPayload));
 });
 
 window.addEventListener("NewMessageArrived", event => {
-	const msg = {
+	const message = {
 		...event.detail,
 		direction: 'outbound',
 		status: 'delivered',
 	}
 
-	// if (msg.from === '5515997393918') {
-	if (true) {
-		if (webSocket == null) {
-			connect();
-		}
+	// const messagePayload = {
+	// 	command: 'message',
+	// 	data: JSON.stringify({
+	// 		action: 'display_received_message',
+	// 		body: JSON.stringify(message)
+	// 	}),
+	// 	identifier: JSON.stringify({
+	// 		id: 'xpto',
+	// 		channel: 'RoomChannel'
+	// 	}),
+	// };
 
-		const toSend = {
-			command: 'message',
-			data: JSON.stringify({
-				action: 'display_received_message',
-				body: JSON.stringify(msg)
-			}),
-			identifier: JSON.stringify({
-				id: 'xpto',
-				channel: 'RoomChannel'
-			}),
-		};
+	const messagePayload = {
+		command: 'message',
+		data: JSON.stringify({
+			action: 'display_message_received_on_chat',
+			body: JSON.stringify(message)
+		}),
+		identifier: JSON.stringify({
+			id: 'fbdd54b9-d7cf-441b-bdbd-1573f258c221',
+			channel: 'WhatsppWebClientUserChannel'
+		}),
+	};
 
-		webSocket.send(JSON.stringify(toSend));
-	} else {
-		console.log("Skipped message: ", msg);
-	}
+	webSocket.send(JSON.stringify(messagePayload));
 	// fetch("https://jsonplaceholder.typicode.com/todos", {
 	// 	method: "POST",
 	// 	body: JSON.stringify(event.msg),

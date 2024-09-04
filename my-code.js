@@ -82,11 +82,13 @@
 
 		window.dispatchEvent(new CustomEvent("MessageSent", {
 			detail: {
-				id: message.id,
-				externalId: event.detail.externalId,
+				// id: message.id,
+				id: event.detail.externalId,
 				direction: 'inbound',
 				from: message.from.split("@")[0],
 				to: message.to.split("@")[0],
+				senderName: 'You',
+				timestamp: new Date(),
 			}
 		}));
 	})
