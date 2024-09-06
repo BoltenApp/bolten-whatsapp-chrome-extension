@@ -1,4 +1,3 @@
-
 function connect() {
 	webSocket = new WebSocket('wss://equipped-concise-owl.ngrok-free.app/cable');
 
@@ -117,5 +116,12 @@ window.addEventListener("NewMessageArrived", event => {
 	};
 	sendActionToWebsocket('display_message_delivered_on_chat', message);
 });
+
+// window.addEventListener("UserloggedIn", event => {
+// 	console.log("WORKING HARD!!!")
+// 	chrome.cookies.set(
+// 		{ url: "https://equipped-concise-owl.ngrok-free.app", name: "UserKey", value: event.detail.jwt }
+// 	);
+// });
 
 //esse content.js é executado isolado da página e por isso tem acesso à api do chrome extension, como chrome.rintme

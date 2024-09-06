@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<!-- Source Codes By CodingNepal - www.codingnepalweb.com -->
+<html lang="en" style="min-width: 400px;">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Extensão Whatsapp | Bolten</title>
+  <link rel="stylesheet" href="content.css" />
+  <script src="script.js"></script>
+</head>
+
+<body>
+  <div class="login_form" id="form_container">
+    <form action="https://equipped-concise-owl.ngrok-free.app/api/login" method="post">
+      <div style="text-align: right;">
+        <img width="80px" style="rotate: 15deg; margin-bottom: -30px; padding-bottom: 20px" src="./bolty_clique.png">
+      </div>
+      <h3>Faça login com</h3>
+      <div class="input_box">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" placeholder="Digite seu e-mail" required />
+      </div>
+      <div class="input_box">
+        <div class="password_title">
+          <label for="password">Senha</label>
+        </div>
+        <input type="password" id="password" placeholder="Digite sua senha" required />
+      </div>
+      <button id="loginButton" type="submit">Log In</button>
+      <p class="sign_up">Ainda não tem uma conta? <a
+          href="https://equipped-concise-owl.ngrok-free.app/pt">Cadastre-se</a></p>
+      <div class="notice">
+        <p class="sign_up">Essa extensão suporta apenas Login com usuário e Senha. Se você faz Login via
+          <b>Google</b>,
+          <b>Facebook</b> ou <b>Microsoft</b>, cadastre a sua senha <a
+            href="https://equipped-concise-owl.ngrok-free.app/pt/users/edit">aqui</a>.
+        </p>
+      </div>
+    </form>
+  </div>
+  <div id="already_logged_in_container" style="display: none; background-color: #f9ecdb;">
+    <div style="text-align: center;">
+      <img width="120px" style="margin-bottom: -30px; padding-bottom: 20px" src="./bolty_boas_vindas.png">
+    </div>
+    <h2>Você está logado :)</h2>
+    <p>Mantenha o Whatsapp Web aberto e feche esta janela.</p>
+  </div>
+</body>
+
+</html>

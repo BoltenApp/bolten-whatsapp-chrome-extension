@@ -2,6 +2,15 @@
 	"manifest_version": 3,
 	"name": "Bolten - Whatsapp Web Tools",
 	"version": "1.0",
+	"action": {
+		"default_popup": "content.html"
+	},
+	"host_permissions": [
+		"https://web.whatsapp.com/*",
+		"https://app.bolten.io/*",
+		"https://sandbox.bolten.io/*",
+		"https://equipped-concise-owl.ngrok-free.app/*"
+	],
 	"content_scripts": [
 		{
 			"matches": [
@@ -18,8 +27,15 @@
 				"https://web.whatsapp.com/*"
 			],
 			"js": [
-				"content.js"
+				"content.js",
+				"script.js"
 			]
 		}
+	],
+	"background": {
+		"service_worker": "background.js"
+	},
+	"permissions": [
+		"cookies"
 	]
 }
