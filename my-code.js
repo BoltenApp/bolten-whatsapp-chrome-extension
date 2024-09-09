@@ -14,6 +14,11 @@
 	}
 
 	WPP.on('chat.new_message', async (msg) => {
+		// console.log("MANDANO E MIM TALOGO")
+		// var port = chrome.runtime.connect();
+
+		// console.log("PORTE", port)
+
 		if (isGroupMessage(msg)) return;
 
 		const senderNumber = msg.__x_from.user

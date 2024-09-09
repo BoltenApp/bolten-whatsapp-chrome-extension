@@ -1,11 +1,17 @@
+// Listen for messages from popup.
 function connect() {
+	if (!cookieExists("ClientUserId")) {
+		console.log("ClientUserId cookie not found");
+		return;
+	}
+
 	webSocket = new WebSocket('wss://equipped-concise-owl.ngrok-free.app/cable');
 
 	webSocket.onopen = (event) => {
 		const subscribeCommand = {
 			command: 'subscribe',
 			identifier: JSON.stringify({
-				id: 'fbdd54b9-d7cf-441b-bdbd-1573f258c221',
+				id: getCookie('ClientUserId'),
 				channel: 'ChatApp::WhatsappWebClientUserChannel'
 			}),
 		};
@@ -86,7 +92,7 @@ function sendActionToWebsocket(action, body) {
 			body: JSON.stringify(body)
 		}),
 		identifier: JSON.stringify({
-			id: 'fbdd54b9-d7cf-441b-bdbd-1573f258c221',
+			id: getCookie('ClientUserId'),
 			channel: 'ChatApp::WhatsappWebClientUserChannel'
 		}),
 	};
@@ -94,7 +100,19 @@ function sendActionToWebsocket(action, body) {
 	webSocket.send(JSON.stringify(payload));
 }
 
-connect()
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+	userToken = request.userToken;
+	clientUserId = request.clientUserId;
+
+	console.log("SETANO O CUQIEEE")
+	console.log(userToken, clientUserId)
+
+	if (userToken && clientUserId) {
+		setCookie("UserKey", userToken, 7);
+		setCookie("ClientUserId", clientUserId, 7);
+		connect()
+	}
+})
 
 window.addEventListener("ConversationReceived", event => {
 	reconnectIfNeeded()
@@ -117,11 +135,21 @@ window.addEventListener("NewMessageArrived", event => {
 	sendActionToWebsocket('display_message_delivered_on_chat', message);
 });
 
-// window.addEventListener("UserloggedIn", event => {
-// 	console.log("WORKING HARD!!!")
-// 	chrome.cookies.set(
-// 		{ url: "https://equipped-concise-owl.ngrok-free.app", name: "UserKey", value: event.detail.jwt }
-// 	);
-// });
+function setCookie(name, value, expirationInDays) {
+	const d = new Date();
+	d.setTime(d.getTime() + (expirationInDays * 24 * 60 * 60 * 1000));
+	let expires = "expires=" + d.toUTCString();
+	document.cookie = name + "=" + value + ";" + expires + ";path=/;domain=" + window.location.hostname;
+}
 
-//esse content.js é executado isolado da página e por isso tem acesso à api do chrome extension, como chrome.rintme
+function cookieExists(name) {
+	return document.cookie.includes(name);
+}
+
+function getCookie(name) {
+	unsplitted = document.cookie.split(name + "=")[1]
+	if (unsplitted == undefined) {
+		return ''
+	}
+	return unsplitted.split(";")[0];
+}

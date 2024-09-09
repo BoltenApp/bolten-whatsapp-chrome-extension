@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async function () {
-  if (document.cookie.includes("UserKey")) {
-    userToken = document.cookie.split("UserKey=")[1].split(";")[0];
+  if (cookieExists("UserKey")) {
+    userToken = getCookie("UserKey");
     clientUserId = await fetchClientUserId(userToken)
       .then((response) => {
         if (response.status === 401) {
@@ -20,7 +20,21 @@ document.addEventListener('DOMContentLoaded', async function () {
           }
 
           setCookie("ClientUserId", json.id, 7);
-          // window.postMessage({ type: "UserloggedIn", userLoggedIn }, "*");
+
+          const tabs = await chrome.tabs.query({})
+
+          for (const tab of tabs) {
+            if (tab.url && tab.url.includes("https://web.whatsapp.com")) {
+              console.log("TAB", tab)
+              chrome.tabs.sendMessage(tab.id, userLoggedIn)
+                .then((response) => {
+                  console.info("Popup received response '%s'", response)
+                })
+                .catch((error) => {
+                  console.warn("Popup could not send message to tab %d", tab.id, error)
+                })
+            }
+          }
 
           disableLoginPage();
         }
@@ -61,14 +75,23 @@ function loginToWhatsappWeb() {
             userToken: userToken,
             clientUserId: json2.id
           }
-          console.log("Dispatching UserloggedIn event", userLoggedIn);
 
           setCookie("UserKey", userToken, 7);
           setCookie("ClientUserId", json2.id, 7);
 
-          disableLoginPage();
+          for (const tab of tabs) {
+            if (tab.url && tab.url.includes("https://web.whatsapp.com")) {
+              chrome.tabs.sendMessage(tab.id, userLoggedIn)
+                .then((response) => {
+                  console.info("Popup received response '%s'", response)
+                })
+                .catch((error) => {
+                  console.warn("Popup could not send message to tab %d", tab.id, error)
+                })
+            }
+          }
 
-          window.postMessage({ type: "UserloggedIn", userLoggedIn }, "*");
+          disableLoginPage();
         })
     });
 };
@@ -94,4 +117,12 @@ function setCookie(name, value, expirationInDays) {
   d.setTime(d.getTime() + (expirationInDays * 24 * 60 * 60 * 1000));
   let expires = "expires=" + d.toUTCString();
   document.cookie = name + "=" + value + ";" + expires + ";path=/;domain=" + window.location.hostname;
+}
+
+function cookieExists(name) {
+  return document.cookie.includes(name);
+}
+
+function getCookie(name) {
+  return document.cookie.split(name + "=")[1].split(";")[0];
 }
