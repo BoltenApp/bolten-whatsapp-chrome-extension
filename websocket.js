@@ -7,7 +7,7 @@ function connect() {
     return;
   }
 
-  webSocket = new WebSocket(webSocketUrl);
+  webSocket = new WebSocket(`${webSocketUrl}?api_token=${getCookie('UserKey')}`);
 
   webSocket.onopen = (_event) => {
     subscribeToBolten();
