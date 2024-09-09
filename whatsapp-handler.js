@@ -43,10 +43,6 @@
 		}));
 	});
 
-	WPP.on('chat.active_chat', (chat) => {
-		// console.log(chat)
-	});
-
 	window.addEventListener("ConversationRequested", async event => {
 		const formattedPersonNumber = event.detail.recipientNumber.slice(1, event.detail.recipientNumber.length);
 		const messageLimit = event.detail.messageLimit;
@@ -77,23 +73,4 @@
 			}
 		}));
 	})
-
-	// // List only chats with users
-	// chats = await WPP.chat.list({ onlyUsers: true });
-	// numberData = []
-	// for (chat of chats) {
-	// 	numberData.push([chat.__x_id.user, chat.__x_id._serialized])
-	// }
-	// contactData = {}
-
-	// numberData.forEach(async (nd) => {
-	// 	c = (await WPP.chat.getMessages(nd[1], { count: 80 }))
-
-	// 	msgs = c.map(msg => {
-	// 		return buildMsgPayload(msg)
-	// 	});
-
-	// 	contactData[nd[1]] = msgs
-	// 	console.log(msgs)
-	// });
 })();

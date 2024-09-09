@@ -4,7 +4,6 @@ webSocket = null;
 
 function connect() {
   if (!cookieExists("ClientUserId")) {
-    console.log("ClientUserId cookie not found");
     return;
   }
 
@@ -19,7 +18,6 @@ function connect() {
   };
 
   webSocket.onclose = (_event) => {
-    console.log('websocket connection closed');
     disconnect();
   };
 }
@@ -38,13 +36,11 @@ function subscribeToBolten() {
 }
 
 function handleBoltenMessages(event) {
-  console.log(`websocket received message: ${event.data}`);
   const message = JSON.parse(event.data).message;
 
   if (message) {
     switch (message.action) {
       case 'fetch_conversation_on_whatsapp_web':
-        console.log(`[WS] Fetching conversation from ${message}`);
         window.dispatchEvent(new CustomEvent("ConversationRequested", {
           detail: {
             senderNumber: message.sender_number,
@@ -54,7 +50,6 @@ function handleBoltenMessages(event) {
         }));
         break;
       case 'send_message_to_whatsapp_web':
-        console.log(`[WS] Message sent to ${message.recipient_number}`);
         window.dispatchEvent(new CustomEvent("MessageDispatchRequested", {
           detail: {
             externalId: message.external_id,
