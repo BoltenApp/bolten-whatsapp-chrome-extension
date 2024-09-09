@@ -1,3 +1,9 @@
+window.removeEventListener("WhatsappWebConnected", () => { });
+window.removeEventListener("WhatsappWebDisconnected", () => { });
+window.removeEventListener("ConversationReceived", () => { });
+window.removeEventListener("MessageSent", () => { });
+window.removeEventListener("NewMessageArrived", () => { });
+
 // Pop-up listeners
 chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
 	userToken = request.userToken;
@@ -6,6 +12,7 @@ chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
 	if (userToken && clientUserId) {
 		setCookie("UserKey", userToken, 7);
 		setCookie("ClientUserId", clientUserId, 7);
+		disconnect()
 		connect()
 	}
 })
