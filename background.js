@@ -1,10 +1,9 @@
-console.log("LOADEI!!!")
-
-window.addEventListener("UserloggedIn", event => {
-  console.log("WORKING HARD!!!")
-  chrome.cookies.set(
-    { url: "https://equipped-concise-owl.ngrok-free.app", name: "UserKey", value: event.detail.jwt }
-  );
-});
-
-console.log("FINALIZEI O LOAD!!!")
+chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
+  if (request == "WhatsappWebConnected") {
+    console.log("WhatsappWebConnected")
+    chrome.action.setIcon({ path: "logo-38-green.png" });
+  } else if (request == "WhatsappWebDisconnected") {
+    console.log("WhatsappWebDisconnected")
+    chrome.action.setIcon({ path: "logo-38.png" });
+  }
+})

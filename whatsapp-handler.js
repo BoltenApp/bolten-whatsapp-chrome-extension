@@ -9,33 +9,11 @@
 		);
 	});
 
-	function isGroupMessage(msg) {
+	const isGroupMessage = (msg) => {
 		return !!msg.__x_author?.user;
 	}
 
-	WPP.on('chat.new_message', async (msg) => {
-		// console.log("MANDANO E MIM TALOGO")
-		// var port = chrome.runtime.connect();
-
-		// console.log("PORTE", port)
-
-		if (isGroupMessage(msg)) return;
-
-		const senderNumber = msg.__x_from.user
-		const profilePicUrl = await WPP.contact.getProfilePictureUrl(`${senderNumber}@c.us`);
-
-		window.dispatchEvent(new CustomEvent("NewMessageArrived", {
-			detail: buildMsgPayload(msg, '', profilePicUrl)
-		}));
-	});
-
-	WPP.on('chat.active_chat', (chat) => {
-		// console.log(chat)
-	});
-
-
-	buildMsgPayload = (msg, senderNumber = '', profilePicUrl = undefined) => {
-		console.log(msg)
+	const buildMsgPayload = (msg, senderNumber = '', profilePicUrl = undefined) => {
 		const profilePicThumb = msg.__x_senderObj?.__x_profilePicThumb?.__x_imgFull || profilePicUrl;
 
 		return {
@@ -54,6 +32,21 @@
 		}
 	}
 
+	WPP.on('chat.new_message', async (msg) => {
+		if (isGroupMessage(msg)) return;
+
+		const senderNumber = msg.__x_from.user
+		const profilePicUrl = await WPP.contact.getProfilePictureUrl(`${senderNumber}@c.us`);
+
+		window.dispatchEvent(new CustomEvent("NewMessageArrived", {
+			detail: buildMsgPayload(msg, '', profilePicUrl)
+		}));
+	});
+
+	WPP.on('chat.active_chat', (chat) => {
+		// console.log(chat)
+	});
+
 	window.addEventListener("ConversationRequested", async event => {
 		const formattedPersonNumber = event.detail.recipientNumber.slice(1, event.detail.recipientNumber.length);
 		const messageLimit = event.detail.messageLimit;
@@ -67,6 +60,7 @@
 			detail: formattedMessages
 		}));
 	})
+
 	window.addEventListener("MessageDispatchRequested", async event => {
 		const formattedRecipientNumber = event.detail.recipientNumber.slice(1, event.detail.recipientNumber.length);
 		const message = await WPP.chat.sendTextMessage(formattedRecipientNumber, event.detail.message, { createChat: true });
@@ -83,13 +77,6 @@
 			}
 		}));
 	})
-
-	// window.addEventListener("UserloggedIn", event => {
-	// 	console.log("WORKING HARD!!!")
-	// 	chrome.cookies.set(
-	// 		{ url: "https://equipped-concise-owl.ngrok-free.app", name: "UserKey", value: event.detail.jwt }
-	// 	);
-	// });
 
 	// // List only chats with users
 	// chats = await WPP.chat.list({ onlyUsers: true });

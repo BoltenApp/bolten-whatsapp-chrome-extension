@@ -1,4 +1,9 @@
+const loginRoute = `https://${Config.baseUrl}/api/login.json`;
+const meRoute = `https://${Config.baseUrl}/api/v1/client_users/me.json`;
+
 document.addEventListener('DOMContentLoaded', async function () {
+  document.getElementById("loginButton").addEventListener("click", loginToWhatsappWeb);
+
   if (cookieExists("UserKey")) {
     userToken = getCookie("UserKey");
     clientUserId = await fetchClientUserId(userToken)
@@ -11,40 +16,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
       })
       .then(async (json) => {
-        clientUserId = json.id;
-
-        if (userToken && clientUserId) {
-          userLoggedIn = {
-            userToken: userToken,
-            clientUserId: json.id
-          }
-
-          setCookie("ClientUserId", json.id, 7);
-
-          const tabs = await chrome.tabs.query({})
-
-          for (const tab of tabs) {
-            if (tab.url && tab.url.includes("https://web.whatsapp.com")) {
-              console.log("TAB", tab)
-              chrome.tabs.sendMessage(tab.id, userLoggedIn)
-                .then((response) => {
-                  console.info("Popup received response '%s'", response)
-                })
-                .catch((error) => {
-                  console.warn("Popup could not send message to tab %d", tab.id, error)
-                })
-            }
-          }
-
-          disableLoginPage();
-        }
+        await setCookiesAndNotifyWhatsappTab(userToken, json.id);
       })
   }
-
-  document.getElementById("loginButton").addEventListener("click", loginToWhatsappWeb);
 });
 
-function loginToWhatsappWeb() {
+async function loginToWhatsappWeb() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
@@ -52,7 +29,27 @@ function loginToWhatsappWeb() {
     alert('Por favor, preencha os campos de e-mail e senha');
     return;
   }
-  fetch("https://equipped-concise-owl.ngrok-free.app/api/login.json", {
+
+  await login(email, password)
+    .then((loginResponse) => {
+      if (loginResponse.status === 401) {
+        alert("E-mail ou senha inválidos");
+        return;
+      }
+      return loginResponse.json()
+    })
+    .then(async (loginResponseJson) => {
+      userToken = loginResponseJson.jwt;
+      clientUserId = await fetchClientUserId(userToken)
+        .then((clientUserResponse) => clientUserResponse.json())
+        .then(async (clientUserResponseJson) => {
+          await setCookiesAndNotifyWhatsappTab(userToken, clientUserResponseJson.id);
+        })
+    });
+};
+
+async function login(email, password) {
+  return await fetch(loginRoute, {
     method: "POST",
     body: JSON.stringify({
       api_user: {
@@ -65,44 +62,10 @@ function loginToWhatsappWeb() {
       "Accept": "application/json"
     }
   })
-    .then((response) => response.json())
-    .then(async (json) => {
-      userToken = json.jwt;
-      clientUserId = await fetchClientUserId(userToken)
-        .then((response2) => response2.json())
-        .then(async (json2) => {
-          userLoggedIn = {
-            userToken: userToken,
-            clientUserId: json2.id
-          }
-
-          setCookie("UserKey", userToken, 7);
-          setCookie("ClientUserId", json2.id, 7);
-
-          for (const tab of tabs) {
-            if (tab.url && tab.url.includes("https://web.whatsapp.com")) {
-              chrome.tabs.sendMessage(tab.id, userLoggedIn)
-                .then((response) => {
-                  console.info("Popup received response '%s'", response)
-                })
-                .catch((error) => {
-                  console.warn("Popup could not send message to tab %d", tab.id, error)
-                })
-            }
-          }
-
-          disableLoginPage();
-        })
-    });
-};
-
-function disableLoginPage() {
-  document.getElementById("form_container").style.display = "none";
-  document.getElementById("already_logged_in_container").style.display = "";
 }
 
 async function fetchClientUserId(apiToken) {
-  return await fetch("https://equipped-concise-owl.ngrok-free.app/api/v1/client_users/me.json", {
+  return await fetch(meRoute, {
     method: "GET",
     headers: {
       "Content-type": "application/json",
@@ -112,17 +75,31 @@ async function fetchClientUserId(apiToken) {
   })
 };
 
-function setCookie(name, value, expirationInDays) {
-  const d = new Date();
-  d.setTime(d.getTime() + (expirationInDays * 24 * 60 * 60 * 1000));
-  let expires = "expires=" + d.toUTCString();
-  document.cookie = name + "=" + value + ";" + expires + ";path=/;domain=" + window.location.hostname;
+async function setCookiesAndNotifyWhatsappTab(userToken, clientUserId) {
+  if (userToken && clientUserId) {
+    setCookie("UserKey", userToken, 7);
+    setCookie("ClientUserId", clientUserId, 7);
+    notifyTab({ userToken: userToken, clientUserId: clientUserId });
+    disableLoginPage();
+  }
 }
 
-function cookieExists(name) {
-  return document.cookie.includes(name);
+async function notifyTab(message) {
+  const tabs = await chrome.tabs.query({});
+
+  for (const tab of tabs) {
+    if (tab.url && tab.url.includes(Config.whatsappUrl)) {
+      chrome.tabs.sendMessage(tab.id, message).then((response) => {
+        console.info("Popup received response '%s'", response)
+      }).catch((error) => {
+        console.warn("Popup could not send message to tab %d", tab.id, error)
+      })
+    }
+  }
 }
 
-function getCookie(name) {
-  return document.cookie.split(name + "=")[1].split(";")[0];
+
+function disableLoginPage() {
+  document.getElementById("form_container").style.display = "none";
+  document.getElementById("already_logged_in_container").style.display = "";
 }

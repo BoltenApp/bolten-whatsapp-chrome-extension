@@ -3,7 +3,8 @@
 	"name": "Bolten - Whatsapp Web Tools",
 	"version": "1.0",
 	"action": {
-		"default_popup": "popup.html"
+		"default_popup": "popup.html",
+		"default_icon": "logo.png"
 	},
 	"host_permissions": [
 		"https://web.whatsapp.com/*",
@@ -18,7 +19,7 @@
 			],
 			"js": [
 				"wppconnect-wa-3.9.0.js",
-				"my-code.js"
+				"whatsapp-handler.js"
 			],
 			"world": "MAIN"
 		},
@@ -27,15 +28,18 @@
 				"https://web.whatsapp.com/*"
 			],
 			"js": [
+				"config.js",
+				"utils.js",
+				"websocket.js",
 				"content.js"
 			]
 		}
 	],
-	// "background": {
-	// 	"service_worker": "background.js"
-	// },
+	"background": {
+		"service_worker": "background.js"
+	},
 	"permissions": [
 		"cookies",
-		"storage"
+		"tabs"
 	]
 }
