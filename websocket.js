@@ -7,6 +7,7 @@ function connect() {
     return;
   }
 
+  console.log("Connection to WS: ", `${webSocketUrl}?api_token=${getCookie('UserKey')}`);
   webSocket = new WebSocket(`${webSocketUrl}?api_token=${getCookie('UserKey')}`);
 
   webSocket.onopen = (_event) => {
@@ -23,6 +24,7 @@ function connect() {
 }
 
 function subscribeToBolten() {
+  console.log("Subscribing: ", getCookie('ClientUserId'));
   const subscribeCommand = {
     command: 'subscribe',
     identifier: JSON.stringify({
@@ -36,6 +38,7 @@ function subscribeToBolten() {
 }
 
 function handleBoltenMessages(event) {
+  console.log("Message received from Bolten: ", event.data);
   const message = JSON.parse(event.data).message;
 
   if (message) {
