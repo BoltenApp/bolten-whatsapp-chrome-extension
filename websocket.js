@@ -1,14 +1,18 @@
 const webSocketUrl = `wss://${Config.baseUrl}/cable`;
 const channel = Config.channel
-webSocket = null;
+let webSocket = null;
+let apiToken = null;
+let clientUserId = null;
 
-function connect() {
-  if (!cookieExists("ClientUserId")) {
+async function connect() {
+  apiToken = await getStorage("UserKey");
+  clientUserId = await getStorage("ClientUserId");
+
+  if (!apiToken || !clientUserId) {
     return;
   }
 
-  console.log("Connection to WS: ", `${webSocketUrl}?api_token=${getCookie('UserKey')}`);
-  webSocket = new WebSocket(`${webSocketUrl}?api_token=${getCookie('UserKey')}`);
+  webSocket = new WebSocket(`${webSocketUrl}?api_token=${apiToken}`);
 
   webSocket.onopen = (_event) => {
     subscribeToBolten();
@@ -20,25 +24,27 @@ function connect() {
 
   webSocket.onclose = (_event) => {
     disconnect();
+    window.dispatchEvent(new CustomEvent("WhatsappWebDisconnected"));
   };
 }
 
 function subscribeToBolten() {
-  console.log("Subscribing: ", getCookie('ClientUserId'));
+  if (!apiToken || !clientUserId) {
+    return;
+  }
+
   const subscribeCommand = {
     command: 'subscribe',
     identifier: JSON.stringify({
-      id: getCookie('ClientUserId'),
+      id: clientUserId,
       channel: channel
     }),
   };
 
   webSocket.send(JSON.stringify(subscribeCommand));
-  window.dispatchEvent(new CustomEvent("WhatsappWebConnected"));
 }
 
 function handleBoltenMessages(event) {
-  console.log("Message received from Bolten: ", event.data);
   const message = JSON.parse(event.data).message;
 
   if (message) {
@@ -72,10 +78,13 @@ function disconnect() {
     return;
   }
   webSocket.close();
-  window.dispatchEvent(new CustomEvent("WhatsappWebDisconnected"));
 }
 
-function sendActionToWebsocket(action, body) {
+async function sendActionToWebsocket(action, body) {
+  if (!apiToken || !clientUserId) {
+    return;
+  }
+
   const payload = {
     command: 'message',
     data: JSON.stringify({
@@ -83,7 +92,7 @@ function sendActionToWebsocket(action, body) {
       body: JSON.stringify(body)
     }),
     identifier: JSON.stringify({
-      id: getCookie('ClientUserId'),
+      id: clientUserId,
       channel: channel
     }),
   };

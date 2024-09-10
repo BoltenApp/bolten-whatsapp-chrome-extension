@@ -10,16 +10,14 @@ chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
 	clientUserId = request.clientUserId;
 
 	if (userToken && clientUserId) {
-		setCookie("UserKey", userToken, 7);
-		setCookie("ClientUserId", clientUserId, 7);
+		setStorage("UserKey", userToken);
+		setStorage("ClientUserId", clientUserId);
 		disconnect()
 		connect()
+
+		chrome.runtime.sendMessage("WhatsappWebConnected");
 	}
 })
-
-window.addEventListener("WhatsappWebConnected", () => {
-	chrome.runtime.sendMessage("WhatsappWebConnected");
-});
 
 window.addEventListener("WhatsappWebDisconnected", () => {
 	chrome.runtime.sendMessage("WhatsappWebDisconnected");
@@ -43,3 +41,8 @@ window.addEventListener("NewMessageArrived", event => {
 
 	sendActionToWebsocket('display_message_delivered_on_chat', message);
 });
+
+window.onbeforeunload = () => {
+	disconnect();
+	chrome.runtime.sendMessage("WhatsappWebDisconnected");
+};

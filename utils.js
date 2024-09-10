@@ -16,3 +16,12 @@ function getCookie(name) {
   }
   return unsplitted.split(";")[0];
 }
+
+function setStorage(key, value) {
+  chrome.storage.local.set({ [key]: value });
+}
+
+async function getStorage(key) {
+  const result = await chrome.storage.local.get([key]);
+  return result[key];
+}
