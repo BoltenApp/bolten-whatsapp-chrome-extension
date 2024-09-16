@@ -39,7 +39,6 @@
 		"service_worker": "background.js"
 	},
 	"permissions": [
-		"cookies",
 		"tabs",
 		"storage"
 	]
