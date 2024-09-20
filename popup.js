@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
       })
       .then(async (json) => {
-        await setCookiesAndNotifyWhatsappTab(userToken, json.id);
+        await setCookiesAndNotifyWhatsappTab(userToken, json.id, enableAlreadyLoggedInPage, enableWhatsAppNotOpened);
       })
   }
 
@@ -46,7 +46,7 @@ async function loginToWhatsappWeb() {
       clientUserId = await fetchClientUserId(userToken)
         .then((clientUserResponse) => clientUserResponse.json())
         .then(async (clientUserResponseJson) => {
-          await setCookiesAndNotifyWhatsappTab(userToken, clientUserResponseJson.id);
+          await setCookiesAndNotifyWhatsappTab(userToken, clientUserResponseJson.id, enableAlreadyLoggedInPage, enableWhatsAppNotOpened);
         })
     });
 };
@@ -59,7 +59,7 @@ async function logoutFromWhatsappWeb() {
       alert("Não foi possível fazer logout");
       return;
     }
-    await unssetCookiesAndDisplayLoginPage();
+    await unsetCookiesAndDisplayLoginPage();
 
     return logoutResponse.json()
   });
@@ -107,39 +107,53 @@ async function setCookiesAndNotifyWhatsappTab(userToken, clientUserId) {
   if (userToken && clientUserId) {
     setCookie("UserKey", userToken, 7);
     setCookie("ClientUserId", clientUserId, 7);
-    notifyTab({ userToken: userToken, clientUserId: clientUserId });
-    disableLoginPage();
+    notifyTab({ userToken: userToken, clientUserId: clientUserId }, enableAlreadyLoggedInPage, enableWhatsAppNotOpened);
   }
 }
 
-async function unssetCookiesAndDisplayLoginPage() {
+async function unsetCookiesAndDisplayLoginPage() {
   setCookie("UserKey", '', 7);
   setCookie("ClientUserId", '', 7);
-  notifyTab({ userToken: '', clientUserId: '' });
-  enableLoginPage();
+  notifyTab({ userToken: '', clientUserId: '' }, enableLoginPage, enableLoginPage);
 }
 
-async function notifyTab(message) {
+async function notifyTab(message, successAction, failureAction) {
   const tabs = await chrome.tabs.query({});
+
+  console.log("Popup sending message to tabs", tabs)
 
   for (const tab of tabs) {
     if (tab.url && tab.url.includes(Config.whatsappUrl)) {
       chrome.tabs.sendMessage(tab.id, message).then((response) => {
         console.info("Popup received response '%s'", response)
+        successAction && successAction();
       }).catch((error) => {
+        failureAction && failureAction();
         console.warn("Popup could not send message to tab %d", tab.id, error)
       })
+
+      break;
     }
   }
-}
 
-
-function disableLoginPage() {
-  document.getElementById("form_container").style.display = "none";
-  document.getElementById("already_logged_in_container").style.display = "";
+  console.log("Applying failure action")
+  failureAction && failureAction();
 }
 
 function enableLoginPage() {
   document.getElementById("form_container").style.display = "";
   document.getElementById("already_logged_in_container").style.display = "none";
+  document.getElementById("whatsapp_web_not_opened").style.display = "none";
+}
+
+function enableAlreadyLoggedInPage() {
+  document.getElementById("form_container").style.display = "none";
+  document.getElementById("already_logged_in_container").style.display = "";
+  document.getElementById("whatsapp_web_not_opened").style.display = "none";
+}
+
+function enableWhatsAppNotOpened() {
+  document.getElementById("form_container").style.display = "none";
+  document.getElementById("already_logged_in_container").style.display = "none";
+  document.getElementById("whatsapp_web_not_opened").style.display = "";
 }

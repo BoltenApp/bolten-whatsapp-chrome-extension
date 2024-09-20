@@ -12,10 +12,10 @@ chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
 	if (userToken && clientUserId) {
 		setStorage("UserKey", userToken);
 		setStorage("ClientUserId", clientUserId);
-		disconnect()
-		connect()
 
-		chrome.runtime.sendMessage("WhatsappWebConnected");
+		connect().then(() => {
+			chrome.runtime.sendMessage("WhatsappWebConnected");
+		});
 	}
 })
 
@@ -47,6 +47,7 @@ window.addEventListener("NewMessageArrived", event => {
 
 window.onbeforeunload = () => {
 	console.log("[Event Listener Added] Disconecting from WPP Web")
+
 	disconnect();
 	chrome.runtime.sendMessage("WhatsappWebDisconnected");
 };

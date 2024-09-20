@@ -30,25 +30,37 @@
         <input type="password" id="password" placeholder="Digite sua senha" required />
       </div>
       <button id="loginButton" type="submit">Log In</button>
-      <p class="sign_up">Ainda não tem uma conta? <a href="https://app.bolten.io/pt">Cadastre-se</a></p>
+      <p class="sign_up">Ainda não tem uma conta? <a href="https://app.bolten.io/pt" target="_blank">Cadastre-se</a></p>
       <div class="notice">
         <p class="sign_up">Essa extensão suporta apenas Login com usuário e Senha. Se você faz Login via
           <b>Google</b>,
-          <b>Facebook</b> ou <b>Microsoft</b>, cadastre a sua senha <a
-            href="https://app.bolten.io/pt/users/password/new">aqui</a>.
+          <b>Facebook</b> ou <b>Microsoft</b>, desautentique-se do sistema e cadastre a sua senha <a
+            href="https://app.bolten.io/pt/users/password/new" target="_blank">aqui</a>.
         </p>
       </div>
     </form>
   </div>
+
   <div id="already_logged_in_container" style="display: none; background-color: #f9ecdb;">
     <div style="text-align: center;">
       <img width="120px" style="margin-bottom: -30px; padding-bottom: 20px" src="./bolty_boas_vindas.png">
     </div>
     <h2>Você está logado :)</h2>
-    <p>Mantenha o Whatsapp Web aberto e feche esta janela.</p>
+    <p>Mantenha o WhatsApp Web aberto e feche esta janela.</p>
     <div class="notice">
       <p class="sign_out">Ou clique <a id="logoutLink" href="#">aqui</a> para fazer Logout</p>
     </div>
+  </div>
+
+  <div id="whatsapp_web_not_opened" style="display: none; background-color: #f9ecdb;">
+    <div style="text-align: center;">
+      <img width="120px" style="margin-bottom: -30px; padding-bottom: 40px" src="./bolty_erro.png">
+    </div>
+    <h2>O WhatsApp Web está aberto?</h2>
+    <div class="notice">
+      <p>Abra uma aba do Whatsapp Web nesse mesmo browser. Caso já exista uma aba aberta, atualize-a e tente novamente.
+    </div>
+    </p>
   </div>
 </body>
 

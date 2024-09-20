@@ -23,7 +23,6 @@ async function connect() {
   };
 
   webSocket.onclose = (_event) => {
-    disconnect();
     window.dispatchEvent(new CustomEvent("WhatsappWebDisconnected"));
   };
 }
