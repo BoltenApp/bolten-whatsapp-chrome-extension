@@ -25,28 +25,28 @@ window.addEventListener("WhatsappWebDisconnected", () => {
 
 // Whatsapp event listeners
 window.addEventListener("ConversationReceived", event => {
-	console.log("[Event Listener Added] ConversationReceived", event.detail)
+	console.log("[Event Listener Added] ConversationReceived")
 	sendActionToWebsocket('display_conversation_on_chat', event.detail);
 });
 
 window.addEventListener("MessageSent", event => {
 	console.log("[Event Listener Added] Event Sent")
-	sendActionToWebsocket('display_message_delivered_on_chat', event.detail);
 });
 
 window.addEventListener("NewMessageArrived", event => {
 	console.log("[Event Listener Added] New Message Arrived")
 	const message = {
 		...event.detail,
-		direction: 'outbound',
 		status: 'delivered',
 	};
 
-	sendActionToWebsocket('display_message_delivered_on_chat', message);
+	const action = event.detail.direction == 'outbound' ? 'display_message_delivered_on_chat' : 'display_message_received_on_chat';
+
+	sendActionToWebsocket(action, message);
 });
 
 window.onbeforeunload = () => {
-	console.log("[Event Listener Added] Trying to Disconect")
+	console.log("[Event Listener Added] Disconecting from WPP Web")
 	disconnect();
 	chrome.runtime.sendMessage("WhatsappWebDisconnected");
 };

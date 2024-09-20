@@ -1,4 +1,5 @@
 const loginRoute = `https://${Config.baseUrl}/api/login.json`;
+const logoutRoute = `https://${Config.baseUrl}/api/logout.json`;
 const meRoute = `https://${Config.baseUrl}/api/v1/client_users/me.json`;
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -19,6 +20,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         await setCookiesAndNotifyWhatsappTab(userToken, json.id);
       })
   }
+
+  document.getElementById("logoutLink").addEventListener("click", logoutFromWhatsappWeb);
 });
 
 async function loginToWhatsappWeb() {
@@ -48,6 +51,20 @@ async function loginToWhatsappWeb() {
     });
 };
 
+async function logoutFromWhatsappWeb() {
+  const apiToken = getCookie("UserKey");
+
+  await logout(apiToken).then(async (logoutResponse) => {
+    if (logoutResponse.status === 401) {
+      alert("Não foi possível fazer logout");
+      return;
+    }
+    await unssetCookiesAndDisplayLoginPage();
+
+    return logoutResponse.json()
+  });
+};
+
 async function login(email, password) {
   return await fetch(loginRoute, {
     method: "POST",
@@ -63,6 +80,17 @@ async function login(email, password) {
     }
   })
 }
+
+async function logout(apiToken) {
+  return await fetch(logoutRoute, {
+    method: "DELETE",
+    headers: {
+      "Content-type": "application/json",
+      "Accept": "application/json",
+      "Authorization": `Bearer ${apiToken}`
+    }
+  })
+};
 
 async function fetchClientUserId(apiToken) {
   return await fetch(meRoute, {
@@ -84,6 +112,13 @@ async function setCookiesAndNotifyWhatsappTab(userToken, clientUserId) {
   }
 }
 
+async function unssetCookiesAndDisplayLoginPage() {
+  setCookie("UserKey", '', 7);
+  setCookie("ClientUserId", '', 7);
+  notifyTab({ userToken: '', clientUserId: '' });
+  enableLoginPage();
+}
+
 async function notifyTab(message) {
   const tabs = await chrome.tabs.query({});
 
@@ -102,4 +137,9 @@ async function notifyTab(message) {
 function disableLoginPage() {
   document.getElementById("form_container").style.display = "none";
   document.getElementById("already_logged_in_container").style.display = "";
+}
+
+function enableLoginPage() {
+  document.getElementById("form_container").style.display = "";
+  document.getElementById("already_logged_in_container").style.display = "none";
 }

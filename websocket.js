@@ -98,7 +98,6 @@ async function sendActionToWebsocket(action, body) {
   };
 
   const msg = JSON.stringify(payload)
-  console.log(msg)
 
   webSocket.send(msg);
 }
