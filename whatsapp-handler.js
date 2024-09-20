@@ -9,8 +9,15 @@
 		);
 	});
 
+	window.removeEventListener("MessageDispatchRequested", () => { });
+	window.removeEventListener("ConversationRequested", () => { });
+
 	const isGroupMessage = (msg) => {
 		return !!msg.__x_author?.user;
+	}
+
+	const isE2ENotification = (msg) => {
+		return msg.__x_type == "e2e_notification";
 	}
 
 	const buildMsgPayload = (msg, senderNumber = '', profilePicUrl = undefined) => {
@@ -33,7 +40,7 @@
 	}
 
 	WPP.on('chat.new_message', async (msg) => {
-		if (isGroupMessage(msg)) return;
+		if (isGroupMessage(msg) || isE2ENotification(msg)) return;
 
 		const senderNumber = msg.__x_from.user
 		const profilePicUrl = await WPP.contact.getProfilePictureUrl(`${senderNumber}@c.us`);
@@ -44,16 +51,26 @@
 	});
 
 	window.addEventListener("ConversationRequested", async event => {
+		const messagesToBeShown = []
 		const formattedPersonNumber = event.detail.recipientNumber.slice(1, event.detail.recipientNumber.length);
 		const messageLimit = event.detail.messageLimit;
 		const messages = await WPP.chat.getMessages(formattedPersonNumber, { count: messageLimit });
 		const profilePicUrl = await WPP.contact.getProfilePictureUrl(`${formattedPersonNumber}@c.us`);
-		const formattedMessages = messages.map(msg => {
-			return buildMsgPayload(msg, formattedPersonNumber, profilePicUrl);
+		messages.forEach(msg => {
+			if(isE2ENotification(msg)) return
+			messagesToBeShown.push(buildMsgPayload(msg, formattedPersonNumber, profilePicUrl))
+		})
+		const another = messages.map(msg => {
+			return buildMsgPayload(msg, formattedPersonNumber, profilePicUrl)
 		})
 
+		console.log("Estou lhe mostrano ANOTHER", another == messagesToBeShown)
+
 		window.dispatchEvent(new CustomEvent("ConversationReceived", {
-			detail: formattedMessages
+			detail: another
+		}));
+		window.dispatchEvent(new CustomEvent("ConversationReceived", {
+			detail: messagesToBeShown
 		}));
 	})
 
