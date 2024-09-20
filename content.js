@@ -25,14 +25,17 @@ window.addEventListener("WhatsappWebDisconnected", () => {
 
 // Whatsapp event listeners
 window.addEventListener("ConversationReceived", event => {
+	console.log("[Event Listener Added] ConversationReceived", event.detail)
 	sendActionToWebsocket('display_conversation_on_chat', event.detail);
 });
 
 window.addEventListener("MessageSent", event => {
+	console.log("[Event Listener Added] Event Sent")
 	sendActionToWebsocket('display_message_delivered_on_chat', event.detail);
 });
 
 window.addEventListener("NewMessageArrived", event => {
+	console.log("[Event Listener Added] New Message Arrived")
 	const message = {
 		...event.detail,
 		direction: 'outbound',
@@ -43,6 +46,7 @@ window.addEventListener("NewMessageArrived", event => {
 });
 
 window.onbeforeunload = () => {
+	console.log("[Event Listener Added] Trying to Disconect")
 	disconnect();
 	chrome.runtime.sendMessage("WhatsappWebDisconnected");
 };

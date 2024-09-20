@@ -97,5 +97,8 @@ async function sendActionToWebsocket(action, body) {
     }),
   };
 
-  webSocket.send(JSON.stringify(payload));
+  const msg = JSON.stringify(payload)
+  console.log(msg)
+
+  webSocket.send(msg);
 }
