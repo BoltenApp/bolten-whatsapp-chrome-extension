@@ -1,5 +1,6 @@
 const loginRoute = `https://${Config.baseUrl}/api/login.json`;
 const meRoute = `https://${Config.baseUrl}/api/v1/client_users/me.json`;
+const whatsappWebContactsRoute = `https://${Config.baseUrl}/api/v1/whatsapp_web/contacts.json`;
 
 document.addEventListener('DOMContentLoaded', async function () {
   document.getElementById("loginButton").addEventListener("click", loginToWhatsappWeb);
@@ -74,6 +75,23 @@ async function fetchClientUserId(apiToken) {
     }
   })
 };
+
+
+
+async function fetchComponents(clientUserId, apiToken) {
+  return await fetch(componentsRouteFor(clientUserId), {
+    method: "GET",
+    headers: {
+      "Content-type": "application/json",
+      "Accept": "application/json",
+      "Authorization": `Bearer ${apiToken}`
+    }
+  })
+}
+
+function componentsRouteFor(clientUserId) {
+  return `https://${Config.baseUrl}/api/v1/client_users/${clientUserId}/components?filter=mappable_to_whatsapp_contact.json`
+}
 
 async function setCookiesAndNotifyWhatsappTab(userToken, clientUserId) {
   if (userToken && clientUserId) {

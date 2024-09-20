@@ -32,6 +32,17 @@
 		}
 	}
 
+	const buildPersonPayloadFromChat = (chat, profilePicUrl = undefined) => {
+		const profilePicThumb = chat.__x_profilePicThumb?.__x_imgFull || profilePicUrl;
+
+		return {
+			senderName: chat.__x_formattedTitle,
+			senderNumber: chat.__x_id.user,
+			senderId: chat.__x_id._serialized,
+			profilePicThumb: profilePicThumb,
+		}
+	}
+
 	WPP.on('chat.new_message', async (msg) => {
 		if (isGroupMessage(msg)) return;
 
@@ -40,6 +51,22 @@
 
 		window.dispatchEvent(new CustomEvent("NewMessageArrived", {
 			detail: buildMsgPayload(msg, '', profilePicUrl)
+		}));
+	});
+
+	WPP.on('chat.active_chat', async (chat) => {
+		if (!chat.__x_isUser) return;
+
+		// const senderName = chat.__x_formattedTitle
+		// const senderNumber = chat.__x_id.user
+		// const senderId = chat.__x_id._serialized
+		const profilePicUrl = await WPP.contact.getProfilePictureUrl(chat.__x_id._serialized);
+
+		// console.log("Sender number", senderNumber);
+		// console.log("Profile Pic URL", profilePicUrl);
+
+		window.dispatchEvent(new CustomEvent("ChatWindowFocused", {
+			detail: buildPersonPayloadFromChat(chat, profilePicUrl)
 		}));
 	});
 

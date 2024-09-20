@@ -46,3 +46,7 @@ window.onbeforeunload = () => {
 	disconnect();
 	chrome.runtime.sendMessage("WhatsappWebDisconnected");
 };
+
+window.addEventListener("ChatWindowFocused", event => {
+
+})
