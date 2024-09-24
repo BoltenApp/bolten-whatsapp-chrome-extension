@@ -1,6 +1,6 @@
 const loginRoute = `https://${Config.baseUrl}/api/login.json`;
 const meRoute = `https://${Config.baseUrl}/api/v1/client_users/me.json`;
-const whatsappWebContactsRoute = `https://${Config.baseUrl}/api/v1/whatsapp_web/contacts.json`;
+const contactsRoute = `https://${Config.baseUrl}/api/v1/whatsapp_contacts`;
 
 document.addEventListener('DOMContentLoaded', async function () {
   document.getElementById("loginButton").addEventListener("click", loginToWhatsappWeb);
@@ -87,11 +87,36 @@ async function fetchComponents(clientUserId, apiToken) {
       "Authorization": `Bearer ${apiToken}`
     }
   })
-}
+};
 
-function componentsRouteFor(clientUserId) {
-  return `https://${Config.baseUrl}/api/v1/client_users/${clientUserId}/components?filter=mappable_to_whatsapp_contact.json`
-}
+async function fetchContactByExternalId(apiToken, externalId) {
+  return await fetch(`${contactsRoute}?externalId=${externalId}`, {
+    method: "GET",
+    headers: {
+      "Content-type": "application/json",
+      "Accept": "application/json",
+      "Authorization": `Bearer ${apiToken}`
+    }
+  })
+};
+
+async function createContactByExternalId(apiToken, externalId, componentId, data) {
+  return await fetch(`${contactsRoute}`, {
+    method: "POST",
+    headers: {
+      "Content-type": "application/json",
+      "Accept": "application/json",
+      "Authorization": `Bearer ${apiToken}`
+    },
+    body: JSON.stringify({
+      componentId: componentId,
+      whatsapp_contact: {
+        externalId: externalId
+      },
+      data: data
+    })
+  })
+};
 
 async function setCookiesAndNotifyWhatsappTab(userToken, clientUserId) {
   if (userToken && clientUserId) {
@@ -116,8 +141,12 @@ async function notifyTab(message) {
   }
 }
 
+function componentsRouteFor(clientUserId) {
+  return `https://${Config.baseUrl}/api/v1/client_users/${clientUserId}/components?filter=mappable_to_whatsapp_contact.json`
+}
 
 function disableLoginPage() {
   document.getElementById("form_container").style.display = "none";
   document.getElementById("already_logged_in_container").style.display = "";
 }
+
