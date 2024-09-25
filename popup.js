@@ -242,31 +242,34 @@ function fillPageWithContactInfo(contactInfo) {
     const tablesContainer = document.querySelector(`#tables_container`);
 
     for (const contact of contactInfo) {
-      const tableContainer = createTable(contact.id);
-      tablesContainer.appendChild(tableContainer);
-      const link = createLink(contact.component_name, contact.url)
-      const headers = [
-        "Tipo",
-        "Componente",
-        ...Object.keys(contact.data)
-      ]
-      const values = [
-        entityMapping[contact.entity_type].name,
-        link,
-        ...Object.values(contact.data)
-      ]
-      addHeadersToTable(contact.id, headers);
-      addValuesToTable(contact.id, values);
+      const tableBody = createTable(contact.id);
+      // const tableContainer = createTable(contact.id);
+      // tablesContainer.appendChild(tableContainer);
+      const link = createLink(`${contact.component_name} (${entityMapping[contact.entity_type].name})`, contact.url)
+      // const headers = [
+      //   "Tipo",
+      //   "Componente",
+      //   ...Object.keys(contact.data)
+      // ]
+      // const values = [
+      //   entityMapping[contact.entity_type].name,
+      //   link,
+      //   ...Object.values(contact.data)
+      // ]
+      // addHeadersToTable(contact.id, headers);
+      // addValuesToTable(contact.id, values);
 
       // addValueToTable("Tipo", entityMapping[contact.entity_type].name, tableBody);
-      // addValueToTable("Componente", link, tableBody);
+      addValueToTable("Encontrado em", link, tableBody);
 
-      // for (let key in contact.data) {
-      //   if (contact.data.hasOwnProperty(key)) {
-      //     if (contact.data[key] != null && contact.data[key] != "" && contact.data[key] != "-")
-      //       addValueToTable(key, contact.data[key], tableBody);
-      //   }
-      // }
+      for (let key in contact.data) {
+        if (contact.data.hasOwnProperty(key)) {
+          if (contact.data[key] != null && contact.data[key] != "" && contact.data[key] != "-")
+            addValueToTable(key, contact.data[key], tableBody);
+        }
+      }
+
+      tablesContainer.appendChild(tableBody);
     }
   }
 
@@ -298,35 +301,44 @@ const entityMapping = {
 //   return tableBody;
 // }
 
+// function createTable(tableId) {
+//   var tableContainer = document.createElement('div');
+//   tableContainer.setAttribute("class", "container-table100");
+//   tableContainer.setAttribute("id", `container-table-${tableId}`);
+
+//   var tableWrapper = document.createElement('div');
+//   tableWrapper.setAttribute("class", "wrap-table100");
+//   tableWrapper.setAttribute("id", `wrap-table-${tableId}`);
+
+//   var tableBody = document.createElement('div');
+//   tableBody.setAttribute("class", "table");
+//   tableBody.setAttribute("id", `table-${tableId}`);
+
+//   var rowHeader = document.createElement("div");
+//   rowHeader.setAttribute("class", "row header");
+//   rowHeader.setAttribute("id", `header-${tableId}`);
+
+//   var row = document.createElement("div");
+//   row.setAttribute("class", "row");
+//   row.setAttribute("id", `row-${tableId}`);
+
+//   tableContainer.appendChild(tableWrapper);
+//   tableWrapper.appendChild(tableBody);
+
+//   tableBody.appendChild(rowHeader);
+//   tableBody.appendChild(row);
+
+//   return tableContainer;
+// }
+
 function createTable(tableId) {
-  var tableContainer = document.createElement('div');
-  tableContainer.setAttribute("class", "container-table100");
-  tableContainer.setAttribute("id", `container-table-${tableId}`);
-
-  var tableWrapper = document.createElement('div');
-  tableWrapper.setAttribute("class", "wrap-table100");
-  tableWrapper.setAttribute("id", `wrap-table-${tableId}`);
-
   var tableBody = document.createElement('div');
-  tableBody.setAttribute("class", "table");
-  tableBody.setAttribute("id", `table-${tableId}`);
+  tableBody.setAttribute("id", tableId);
+  tableBody.setAttribute("class", "card");
 
-  var rowHeader = document.createElement("div");
-  rowHeader.setAttribute("class", "row header");
-  rowHeader.setAttribute("id", `header-${tableId}`);
-
-  var row = document.createElement("div");
-  row.setAttribute("class", "row");
-  row.setAttribute("id", `row-${tableId}`);
-
-  tableContainer.appendChild(tableWrapper);
-  tableWrapper.appendChild(tableBody);
-
-  tableBody.appendChild(rowHeader);
-  tableBody.appendChild(row);
-
-  return tableContainer;
+  return tableBody;
 }
+
 
 function addHeadersToTable(tableId, headers) {
   var header = document.getElementById(`header-${tableId}`);
@@ -347,14 +359,12 @@ function addValuesToTable(tableId, values) {
   values.forEach((value) => {
     var cell = document.createElement("div");
     cell.setAttribute("class", "cell");
-    // cell.setAttribute("data-title", value);
     if (typeof value === "object") {
       cell.appendChild(value);
     } else {
       cell.setAttribute("data-title", value);
       cell.textContent = value;
     }
-    // cell.textContent = value;
     row.appendChild(cell);
   });
 
@@ -370,23 +380,38 @@ function createLink(text, url) {
   return htmlObject;
 }
 
-function addValueToTable(key, value, tableBody) {
-  const row = document.createElement("tr");
-  const keyCell = document.createElement("td");
-  const valueCell = document.createElement("td");
+// function addValueToTable(key, value, tableBody) {
+//   const row = document.createElement("tr");
+//   const keyCell = document.createElement("td");
+//   const valueCell = document.createElement("td");
 
-  keyCell.textContent = key;
+//   keyCell.textContent = key;
+
+//   if (typeof value === "object") {
+//     valueCell.appendChild(value);
+//   } else {
+//     valueCell.textContent = value;
+//   }
+
+//   row.appendChild(keyCell);
+//   row.appendChild(valueCell);
+
+//   tableBody.appendChild(row);
+// }
+
+function addValueToTable(key, value, tableBody) {
+  const keyCell = document.createElement("p");
+  const bold = document.createElement("b");
+  keyCell.appendChild(bold);
+  bold.textContent = `${key}: `;
 
   if (typeof value === "object") {
-    valueCell.appendChild(value);
+    keyCell.appendChild(value);
   } else {
-    valueCell.textContent = value;
+    keyCell.textContent += value;
   }
 
-  row.appendChild(keyCell);
-  row.appendChild(valueCell);
-
-  tableBody.appendChild(row);
+  tableBody.appendChild(keyCell);
 }
 
 function fullUrl(path) {
