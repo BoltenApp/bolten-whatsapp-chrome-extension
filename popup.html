@@ -11,7 +11,7 @@
   <!-- <link rel="stylesheet" href="table-util.css" /> -->
   <script src="config.js"></script>
   <script src="utils.js"></script>
-  <script src="popup.js"></script>
+  <script type="module" src="popup.js"></script>
 </head>
 
 <body>
@@ -70,18 +70,24 @@
       <p>A glass-like card to demonstrate the <strong>Glassmorphism UI design</strong> trend.</p>
     </div> -->
     <div id="contact_main_area">
-      <div id="contact_photo"></div>
+      <div id="contact_photo">
+        <img id="contact_photo_img" src="" alt="Contact Photo" />
+      </div>
       <div id="contact_info">
         <h2 id="contact_name"></h2>
-        <p id="contact_phone_number"></p>
-      </div>
-      <h3 id="entries_info"></h3>
-      <div class="notice">
-        <p id="entries_sub_info"></p>
-      </div>
-      <div id="tables_container">
+        <h4 id="contact_phone_number"></h4>
       </div>
     </div>
+    <hr>
+    <h3 id="entries_info"></h3>
+    <div class="notice">
+      <p id="entries_sub_info"></p>
+    </div>
+    <div id="dropdown_container"></div>
+    <div id="mapping_container"></div>
+    <div id="tables_container">
+    </div>
+  </div>
 </body>
 
 </html>

@@ -1,7 +1,22 @@
-const loginRoute = `https://${Config.baseUrl}/api/login.json`;
-const logoutRoute = `https://${Config.baseUrl}/api/logout.json`;
-const contactsRoute = `https://${Config.baseUrl}/api/v1/whatsapp_contacts`;
-const meRoute = `https://${Config.baseUrl}/api/v1/client_users/me.json`;
+import {
+  fetchClientUserId,
+  fetchComponents,
+  fetchContactByExternalId,
+  fetchComponentMappingFor,
+  createContactByExternalId
+} from "./api.js";
+
+import {
+  enableWhatsAppNotOpened,
+  enableContactInfoPage,
+  enableLoginPage,
+  enableAlreadyLoggedInPage,
+} from './pageHandler.js';
+
+import {
+  loginToWhatsappWeb,
+  logoutFromWhatsappWeb
+} from './pages/login.js';
 
 // Prevents extension from closing when clicking on another tab
 // document.addEventListener('click', evt => {
@@ -17,8 +32,8 @@ document.addEventListener('DOMContentLoaded', async function () {
   document.getElementById("loginButton").addEventListener("click", loginToWhatsappWeb);
 
   if (cookieExists("UserKey")) {
-    userToken = getCookie("UserKey");
-    clientUserId = await fetchClientUserId(userToken)
+    const userToken = getCookie("UserKey");
+    await fetchClientUserId(userToken)
       .then((response) => {
         if (response.status === 401) {
           console.log("Não foi possível fazer login com o Token armazenado. Autentique-se novamente");
@@ -33,142 +48,15 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   document.getElementById("logoutLink").addEventListener("click", logoutFromWhatsappWeb);
-  // enableContactInfoPage()
 });
-
-const pageIds = [
-  "form_container",
-  "already_logged_in_container",
-  "whatsapp_web_not_opened",
-  "contact_info"
-];
-
-async function loginToWhatsappWeb() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  if (!email || !password) {
-    alert('Por favor, preencha os campos de e-mail e senha');
-    return;
-  }
-
-  await login(email, password)
-    .then((loginResponse) => {
-      if (loginResponse.status === 401) {
-        alert("E-mail ou senha inválidos");
-        return;
-      }
-      return loginResponse.json()
-    })
-    .then(async (loginResponseJson) => {
-      userToken = loginResponseJson.jwt;
-      clientUserId = await fetchClientUserId(userToken)
-        .then((clientUserResponse) => clientUserResponse.json())
-        .then(async (clientUserResponseJson) => {
-          await setCookiesAndNotifyWhatsappTab(userToken, clientUserResponseJson.id, enableAlreadyLoggedInPage, enableWhatsAppNotOpened);
-        })
-    });
-};
-
-async function logoutFromWhatsappWeb() {
-  const apiToken = getCookie("UserKey");
-
-  await logout(apiToken).then(async (logoutResponse) => {
-    if (logoutResponse.status === 401) {
-      alert("Não foi possível fazer logout");
-      return;
-    }
-    await unsetCookiesAndDisplayLoginPage();
-
-    return logoutResponse.json()
-  });
-};
-
-async function login(email, password) {
-  return await fetch(loginRoute, {
-    method: "POST",
-    body: JSON.stringify({
-      api_user: {
-        email: email,
-        password: password
-      }
-    }),
-    headers: {
-      "Content-type": "application/json",
-      "Accept": "application/json"
-    }
-  })
-}
-
-async function logout(apiToken) {
-  return await fetch(logoutRoute, {
-    method: "DELETE",
-    headers: {
-      "Content-type": "application/json",
-      "Accept": "application/json",
-      "Authorization": `Bearer ${apiToken}`
-    }
-  })
-};
-
-async function fetchClientUserId(apiToken) {
-  return await fetch(meRoute, {
-    method: "GET",
-    headers: {
-      "Content-type": "application/json",
-      "Accept": "application/json",
-      "Authorization": `Bearer ${apiToken}`
-    }
-  })
-};
-
-
-
-async function fetchComponents(clientUserId, apiToken) {
-  return await fetch(componentsRouteFor(clientUserId), {
-    method: "GET",
-    headers: {
-      "Content-type": "application/json",
-      "Accept": "application/json",
-      "Authorization": `Bearer ${apiToken}`
-    }
-  })
-};
-
-async function fetchContactByExternalId(apiToken, externalId) {
-  return await fetch(`${contactsRoute}?external_id=${externalId}`, {
-    method: "GET",
-    headers: {
-      "Content-type": "application/json",
-      "Accept": "application/json",
-      "Authorization": `Bearer ${apiToken}`
-    }
-  })
-};
-
-async function createContactByExternalId(apiToken, externalId, componentId, data) {
-  return await fetch(`${contactsRoute}`, {
-    method: "POST",
-    headers: {
-      "Content-type": "application/json",
-      "Accept": "application/json",
-      "Authorization": `Bearer ${apiToken}`
-    },
-    body: JSON.stringify({
-      componentId: componentId,
-      whatsapp_contact: {
-        externalId: externalId
-      },
-      data: data
-    })
-  })
-};
 
 async function setCookiesAndNotifyWhatsappTab(userToken, clientUserId) {
   if (userToken && clientUserId) {
     setCookie("UserKey", userToken, 7);
     setCookie("ClientUserId", clientUserId, 7);
     notifyTab({ userToken: userToken, clientUserId: clientUserId }, enableAlreadyLoggedInPage, enableWhatsAppNotOpened);
+    // TODO: Remove this line
+    transitionToContactPage();
   }
 }
 
@@ -178,70 +66,45 @@ async function unsetCookiesAndDisplayLoginPage() {
   notifyTab({ userToken: '', clientUserId: '' }, enableLoginPage, enableLoginPage);
 }
 
-async function notifyTab(message, successAction, failureAction) {
-  const tabs = await chrome.tabs.query({});
+async function transitionToContactPage() {
+  const userToken = getCookie("UserKey");
+  const clientUserId = getCookie("ClientUserId");
+  const externalId = "15997383817@us.com"
 
-  for (const tab of tabs) {
-    if (tab.url && tab.url.includes(Config.whatsappUrl)) {
-      chrome.tabs.sendMessage(tab.id, message).then((response) => {
-        console.info("Popup received response '%s'", response)
-        successAction && successAction();
-        // enableContactInfoPage()
-      }).catch((error) => {
-        failureAction && failureAction();
-        console.warn("Popup could not send message to tab %d", tab.id, error)
-      })
-
-      break;
+  await fetchContactByExternalId(userToken, externalId).then(async (response) => {
+    if (response.status === 401) {
+      await unsetCookiesAndDisplayLoginPage();
+    } else {
+      const contacts = await response.json();
+      fillPageWithContactInfo(contacts);
     }
+  });
+}
+
+function fillPageWithContactInfo(contacts, whatsappInfo = {
+  name: "Oreia da Silva",
+  profilePicUrl: "https://media-gru1-1.cdn.whatsapp.net/v/t61.24694-24/432998152_816058723788076_2053571525311385107_n.jpg?ccb=11-4&oh=01_Q5AaIFhDo1SCIHA5A2UKmClkYUdQB9m0aDt77RRY43ZD7InX&oe=66F81BD4&_nc_sid=5e03e0&_nc_cat=108",
+  phoneNumber: "5515997302927",
+}) {
+  fillPageWithWhatsAppInfo(whatsappInfo);
+
+  const entityMapping = {
+    "ContactApp::Contact": { "name": "Contato" },
+    "BusinessApp::Business": { "name": "Negócio" },
+    "KanbanApp::Opportunity": { "name": "Oportunidade" }
   }
 
-  console.log("Applying failure action")
-  failureAction && failureAction();
-}
+  if (contacts.length == 0) {
+    document.getElementById("entries_info").innerText = "Esse contato não foi encontrado no seu Funil";
+    document.getElementById("entries_sub_info").innerText = "Onde gostaria de adicioná-lo?";
 
-function componentsRouteFor(clientUserId) {
-  return `https://${Config.baseUrl}/api/v1/client_users/${clientUserId}/components?filter=mappable_to_whatsapp_contact.json`
-}
-
-function enableLoginPage() {
-  enablePageByElementId("form_container");
-}
-
-function enableAlreadyLoggedInPage() {
-  enablePageByElementId("already_logged_in_container");
-  transitionToContactPage();
-}
-
-async function transitionToContactPage() {
-  userToken = getCookie("UserKey");
-  clientUserId = getCookie("ClientUserId");
-  externalId = "15997383817@us.com"
-
-  await fetchContactByExternalId(userToken, externalId)
-    .then(async (response) => {
-      if (response.status === 401) {
-        await unsetCookiesAndDisplayLoginPage();
-      } else {
-        const contacts = await response.json();
-        fillPageWithContactInfo(contacts);
-      }
-    });
-}
-
-function fillPageWithContactInfo(contactInfo) {
-  if (contactInfo.length == 0) {
-    document.getElementById("entries_info").innerText = "Esse contato não foi encontrado na Bolten";
-    document.getElementById("entries_sub_info").innerText = "Gostaria de adicioná-lo?";
-
-    // await fetchComponents(clientUserId, userToken)
-
+    showComponentSelectionDropdown()
   } else {
-    document.getElementById("entries_info").innerText = `Encontrada(s) ${contactInfo.length} entrada(s) para esse contato:`;
+    document.getElementById("entries_info").innerText = `Encontrada(s) ${contacts.length} entrada(s) para esse contato:`;
 
     const tablesContainer = document.querySelector(`#tables_container`);
 
-    for (const contact of contactInfo) {
+    for (const contact of contacts) {
       const tableBody = createTable(contact.id);
       const link = createLink(`${contact.component_name} (${entityMapping[contact.entity_type].name})`, contact.url)
       addValueToTable("Encontrado em", link, tableBody);
@@ -256,104 +119,91 @@ function fillPageWithContactInfo(contactInfo) {
       tablesContainer.appendChild(tableBody);
     }
   }
-
   enableContactInfoPage();
 }
 
-const entityMapping = {
-  "ContactApp::Contact": {
-    "name": "Contato"
-  },
-  "BusinessApp::Business": {
-    "name": "Negócio"
-  },
-  "KanbanApp::Opportunity": {
-    "name": "Oportunidade"
+function fillPageWithWhatsAppInfo(whatsappInfo) {
+  const contactNameElement = document.getElementById("contact_name");
+  const contactPhotoElement = document.getElementById("contact_photo_img");
+  const contactPhoneNumberElement = document.getElementById("contact_phone_number");
+
+  if (contactNameElement) {
+    contactNameElement.innerText = whatsappInfo.name;
+  }
+
+  if (contactPhotoElement) {
+    contactPhotoElement.src = whatsappInfo.profilePicUrl;
+  }
+
+  if (contactPhoneNumberElement) {
+    contactPhoneNumberElement.innerText = whatsappInfo.phoneNumber;
   }
 }
 
-function createTable(tableId) {
-  var tableBody = document.createElement('div');
-  tableBody.setAttribute("id", tableId);
-  tableBody.setAttribute("class", "card");
 
-  return tableBody;
-}
+async function showComponentSelectionDropdown() {
+  const userToken = getCookie("UserKey");
+  const clientUserId = getCookie("ClientUserId");
 
-
-function addHeadersToTable(tableId, headers) {
-  var header = document.getElementById(`header-${tableId}`);
-
-  headers.forEach((headerText) => {
-    var cell = document.createElement("div");
-    cell.setAttribute("class", "cell");
-    cell.textContent = headerText;
-    header.appendChild(cell);
-  });
-
-  return header;
-}
-
-function addValuesToTable(tableId, values) {
-  var row = document.getElementById(`row-${tableId}`);
-
-  values.forEach((value) => {
-    var cell = document.createElement("div");
-    cell.setAttribute("class", "cell");
-    if (typeof value === "object") {
-      cell.appendChild(value);
+  await fetchComponents(userToken, clientUserId).then(async (response) => {
+    if (response.status === 401) {
+      await unsetCookiesAndDisplayLoginPage();
     } else {
-      cell.setAttribute("data-title", value);
-      cell.textContent = value;
+      const components = await response.json();
+      fillInComponentSelect(components);
     }
-    row.appendChild(cell);
+  });
+}
+
+function fillInComponentSelect(components) {
+  const selectElement = createSelect("component_select");
+
+  components.forEach(component => {
+    addOptionToSelect(selectElement, component.id, `${component.name} (${component.project})`);
   });
 
-  return row;
+  document.getElementById('dropdown_container').appendChild(selectElement);
+  document.getElementById("component_select").addEventListener("change", showComponentMappingDetails);
 }
 
-function createLink(text, url) {
-  const contactUrl = `<a href="${fullUrl(url)}" target="_blank">${text}</a>`
-  const temp = document.createElement('a');
-  temp.innerHTML = contactUrl;
-  const htmlObject = temp.firstChild;
+async function showComponentMappingDetails() {
+  const userToken = getCookie("UserKey");
+  const componentId = document.getElementById("component_select").value;
 
-  return htmlObject;
+  await fetchComponentMappingFor(userToken, componentId)
+    .then(async (response) => {
+      if (response.status === 401) {
+        await unsetCookiesAndDisplayLoginPage();
+      } else if (response.status === 422) {
+        const errorCode = await response.json().code;
+        if (errorCode === "ChatApp::UnableToSetContactMappingError") {
+          alert("Esse componente não possui um campo de nome ou de telefone. Selecione outro componente ou adicione esses campos ao componente desejado");
+        }
+      } else {
+        const mapping = await response.json();
+        fillInComponentMappingDetails(mapping);
+      }
+    })
+    .catch((error) => {
+      alert(error);
+    });
 }
 
-function addValueToTable(key, value, tableBody) {
-  const keyCell = document.createElement("p");
-  const bold = document.createElement("b");
-  keyCell.appendChild(bold);
-  bold.textContent = `${key}: `;
-
-  if (typeof value === "object") {
-    keyCell.appendChild(value);
-  } else {
-    keyCell.textContent += value;
+function fillInComponentMappingDetails(mapping, name = "Oreia da Silva", phoneNumber = "5515997302927") {
+  if (document.getElementById('contact_preview')) {
+    document.getElementById('contact_preview').remove();
   }
 
-  tableBody.appendChild(keyCell);
-}
+  const tablesContainer = document.querySelector(`#tables_container`);
+  const contactPreview = createTable("contact_preview");
+  addValueToTable(mapping.full_name, name, contactPreview);
+  addValueToTable(mapping.whatsapp_phone_number, phoneNumber, contactPreview);
+  tablesContainer.appendChild(contactPreview);
 
-function fullUrl(path) {
-  return `https://${Config.baseUrl}${path}`;
-}
-
-function enableWhatsAppNotOpened() {
-  enablePageByElementId("whatsapp_web_not_opened");
-}
-
-function enableContactInfoPage() {
-  enablePageByElementId("contact_info");
-}
-
-function enablePageByElementId(elementId) {
-  console.log(elementId)
-
-  pageIds.forEach((pageId) => {
-    document.getElementById(pageId).style.display = "none";
+  const button = document.createElement('button');
+  button.textContent = 'Criar Contato';
+  button.addEventListener('click', function () {
+    createContactByExternalId();
   });
-
-  document.getElementById(elementId).style.display = "";
+  tablesContainer.appendChild(button);
 }

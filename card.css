@@ -56,7 +56,50 @@ body {
   color: #446;
 }
 
-#entries_info {
+#contact_main_area {
   margin-top: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+#entries_info {
+  margin-top: 15px;
   margin-bottom: 15px;
+}
+
+#contact_phone_number {
+  text-align: center;
+}
+
+#entries_sub_info {
+  text-align: center;
+}
+
+#contact_photo_img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+#dropdown_container {
+  text-align: center;
+}
+
+select {
+  width: 80%;
+  max-width: 80%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+hr {
+  border-color: #ffffff;
 }
