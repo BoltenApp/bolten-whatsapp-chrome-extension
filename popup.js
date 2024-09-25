@@ -1,7 +1,7 @@
 const loginRoute = `https://${Config.baseUrl}/api/login.json`;
 const logoutRoute = `https://${Config.baseUrl}/api/logout.json`;
-const meRoute = `https://${Config.baseUrl}/api/v1/client_users/me.json`;
 const contactsRoute = `https://${Config.baseUrl}/api/v1/whatsapp_contacts`;
+const meRoute = `https://${Config.baseUrl}/api/v1/client_users/me.json`;
 
 // Prevents extension from closing when clicking on another tab
 // document.addEventListener('click', evt => {
@@ -209,17 +209,14 @@ function enableLoginPage() {
 }
 
 function enableAlreadyLoggedInPage() {
-  console.log("CHAMANO CONTAINER!!")
   enablePageByElementId("already_logged_in_container");
-  console.log("CHAMANO TRANSICAO!!!!!")
   transitionToContactPage();
 }
 
 async function transitionToContactPage() {
-  console.log("VO TRANSICIONAA!!")
   userToken = getCookie("UserKey");
-  // clientUserId = getCookie("ClientUserId");
-  externalId = "15997383817@us.co"
+  clientUserId = getCookie("ClientUserId");
+  externalId = "15997383817@us.com"
 
   await fetchContactByExternalId(userToken, externalId)
     .then(async (response) => {
@@ -234,32 +231,19 @@ async function transitionToContactPage() {
 
 function fillPageWithContactInfo(contactInfo) {
   if (contactInfo.length == 0) {
-    document.getElementById("contact_main_area").innerText = "Esse contato não foi encontrado";
-    document.getElementById("contact_sub_area").innerText = "Gostaria de adicioná-lo?";
+    document.getElementById("entries_info").innerText = "Esse contato não foi encontrado na Bolten";
+    document.getElementById("entries_sub_info").innerText = "Gostaria de adicioná-lo?";
+
+    // await fetchComponents(clientUserId, userToken)
+
   } else {
-    document.getElementById("contact_main_area").innerText = `Encontrada(s) ${contactInfo.length} entrada(s) para esse contato:`;
+    document.getElementById("entries_info").innerText = `Encontrada(s) ${contactInfo.length} entrada(s) para esse contato:`;
 
     const tablesContainer = document.querySelector(`#tables_container`);
 
     for (const contact of contactInfo) {
       const tableBody = createTable(contact.id);
-      // const tableContainer = createTable(contact.id);
-      // tablesContainer.appendChild(tableContainer);
       const link = createLink(`${contact.component_name} (${entityMapping[contact.entity_type].name})`, contact.url)
-      // const headers = [
-      //   "Tipo",
-      //   "Componente",
-      //   ...Object.keys(contact.data)
-      // ]
-      // const values = [
-      //   entityMapping[contact.entity_type].name,
-      //   link,
-      //   ...Object.values(contact.data)
-      // ]
-      // addHeadersToTable(contact.id, headers);
-      // addValuesToTable(contact.id, values);
-
-      // addValueToTable("Tipo", entityMapping[contact.entity_type].name, tableBody);
       addValueToTable("Encontrado em", link, tableBody);
 
       for (let key in contact.data) {
@@ -287,49 +271,6 @@ const entityMapping = {
     "name": "Oportunidade"
   }
 }
-
-// function createTable(tableId) {
-//   var tableBody = document.createElement('table');
-//   tableBody.setAttribute("id", tableId);
-//   tableBody.setAttribute("class", "table");
-//   var tableHead = document.createElement("thead");
-//   var valueBody = document.createElement("tbody");
-
-//   tableBody.appendChild(tableHead);
-//   tableBody.appendChild(valueBody);
-
-//   return tableBody;
-// }
-
-// function createTable(tableId) {
-//   var tableContainer = document.createElement('div');
-//   tableContainer.setAttribute("class", "container-table100");
-//   tableContainer.setAttribute("id", `container-table-${tableId}`);
-
-//   var tableWrapper = document.createElement('div');
-//   tableWrapper.setAttribute("class", "wrap-table100");
-//   tableWrapper.setAttribute("id", `wrap-table-${tableId}`);
-
-//   var tableBody = document.createElement('div');
-//   tableBody.setAttribute("class", "table");
-//   tableBody.setAttribute("id", `table-${tableId}`);
-
-//   var rowHeader = document.createElement("div");
-//   rowHeader.setAttribute("class", "row header");
-//   rowHeader.setAttribute("id", `header-${tableId}`);
-
-//   var row = document.createElement("div");
-//   row.setAttribute("class", "row");
-//   row.setAttribute("id", `row-${tableId}`);
-
-//   tableContainer.appendChild(tableWrapper);
-//   tableWrapper.appendChild(tableBody);
-
-//   tableBody.appendChild(rowHeader);
-//   tableBody.appendChild(row);
-
-//   return tableContainer;
-// }
 
 function createTable(tableId) {
   var tableBody = document.createElement('div');
@@ -380,25 +321,6 @@ function createLink(text, url) {
   return htmlObject;
 }
 
-// function addValueToTable(key, value, tableBody) {
-//   const row = document.createElement("tr");
-//   const keyCell = document.createElement("td");
-//   const valueCell = document.createElement("td");
-
-//   keyCell.textContent = key;
-
-//   if (typeof value === "object") {
-//     valueCell.appendChild(value);
-//   } else {
-//     valueCell.textContent = value;
-//   }
-
-//   row.appendChild(keyCell);
-//   row.appendChild(valueCell);
-
-//   tableBody.appendChild(row);
-// }
-
 function addValueToTable(key, value, tableBody) {
   const keyCell = document.createElement("p");
   const bold = document.createElement("b");
@@ -427,7 +349,6 @@ function enableContactInfoPage() {
 }
 
 function enablePageByElementId(elementId) {
-  console.log("ESTOU SENO CHAMADO!!!")
   console.log(elementId)
 
   pageIds.forEach((pageId) => {
