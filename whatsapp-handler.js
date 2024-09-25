@@ -54,6 +54,8 @@
 	WPP.on('chat.new_message', async (msg) => {
 		if (isGroupMessage(msg) || isE2ENotification(msg)) return;
 
+		console.log("NEW MESSAGE")
+
 		const senderNumber = msg.__x_from.user
 		const profilePicUrl = await WPP.contact.getProfilePictureUrl(`${senderNumber}@c.us`);
 
@@ -65,13 +67,19 @@
 	WPP.on('chat.active_chat', async (chat) => {
 		if (!chat.__x_isUser) return;
 
+		console.log("ACTIVE CHAT")
+
 		// const senderName = chat.__x_formattedTitle
 		// const senderNumber = chat.__x_id.user
 		// const senderId = chat.__x_id._serialized
 		const profilePicUrl = await WPP.contact.getProfilePictureUrl(chat.__x_id._serialized);
 
 		// console.log("Sender number", senderNumber);
+		// console.log("Sender number", senderId);
 		// console.log("Profile Pic URL", profilePicUrl);
+
+		const payload = buildPersonPayloadFromChat(chat, profilePicUrl)
+		console.log("Payload", payload);
 
 		window.dispatchEvent(new CustomEvent("ChatWindowFocused", {
 			detail: buildPersonPayloadFromChat(chat, profilePicUrl)

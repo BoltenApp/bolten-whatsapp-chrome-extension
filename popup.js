@@ -3,6 +3,16 @@ const logoutRoute = `https://${Config.baseUrl}/api/logout.json`;
 const meRoute = `https://${Config.baseUrl}/api/v1/client_users/me.json`;
 const contactsRoute = `https://${Config.baseUrl}/api/v1/whatsapp_contacts`;
 
+// Prevents extension from closing when clicking on another tab
+// document.addEventListener('click', evt => {
+//   console.log("KOKOKO")
+//   const a = evt.target.closest('a[href]');
+//   if (a) {
+//     evt.preventDefault();
+//     chrome.tabs.create({ url: a.href, active: false });
+//   }
+// });
+
 document.addEventListener('DOMContentLoaded', async function () {
   document.getElementById("loginButton").addEventListener("click", loginToWhatsappWeb);
 
@@ -23,7 +33,15 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   document.getElementById("logoutLink").addEventListener("click", logoutFromWhatsappWeb);
+  // enableContactInfoPage()
 });
+
+const pageIds = [
+  "form_container",
+  "already_logged_in_container",
+  "whatsapp_web_not_opened",
+  "contact_info"
+];
 
 async function loginToWhatsappWeb() {
   const email = document.getElementById("email").value;
@@ -118,7 +136,7 @@ async function fetchComponents(clientUserId, apiToken) {
 };
 
 async function fetchContactByExternalId(apiToken, externalId) {
-  return await fetch(`${contactsRoute}?externalId=${externalId}`, {
+  return await fetch(`${contactsRoute}?external_id=${externalId}`, {
     method: "GET",
     headers: {
       "Content-type": "application/json",
@@ -163,13 +181,12 @@ async function unsetCookiesAndDisplayLoginPage() {
 async function notifyTab(message, successAction, failureAction) {
   const tabs = await chrome.tabs.query({});
 
-  console.log("Popup sending message to tabs", tabs)
-
   for (const tab of tabs) {
     if (tab.url && tab.url.includes(Config.whatsappUrl)) {
       chrome.tabs.sendMessage(tab.id, message).then((response) => {
         console.info("Popup received response '%s'", response)
         successAction && successAction();
+        // enableContactInfoPage()
       }).catch((error) => {
         failureAction && failureAction();
         console.warn("Popup could not send message to tab %d", tab.id, error)
@@ -188,20 +205,209 @@ function componentsRouteFor(clientUserId) {
 }
 
 function enableLoginPage() {
-  document.getElementById("form_container").style.display = "";
-  document.getElementById("already_logged_in_container").style.display = "none";
-  document.getElementById("whatsapp_web_not_opened").style.display = "none";
+  enablePageByElementId("form_container");
 }
 
 function enableAlreadyLoggedInPage() {
-  document.getElementById("form_container").style.display = "none";
-  document.getElementById("already_logged_in_container").style.display = "";
-  document.getElementById("whatsapp_web_not_opened").style.display = "none";
+  console.log("CHAMANO CONTAINER!!")
+  enablePageByElementId("already_logged_in_container");
+  console.log("CHAMANO TRANSICAO!!!!!")
+  transitionToContactPage();
+}
+
+async function transitionToContactPage() {
+  console.log("VO TRANSICIONAA!!")
+  userToken = getCookie("UserKey");
+  // clientUserId = getCookie("ClientUserId");
+  externalId = "15997383817@us.co"
+
+  await fetchContactByExternalId(userToken, externalId)
+    .then(async (response) => {
+      if (response.status === 401) {
+        await unsetCookiesAndDisplayLoginPage();
+      } else {
+        const contacts = await response.json();
+        fillPageWithContactInfo(contacts);
+      }
+    });
+}
+
+function fillPageWithContactInfo(contactInfo) {
+  if (contactInfo.length == 0) {
+    document.getElementById("contact_main_area").innerText = "Esse contato não foi encontrado";
+    document.getElementById("contact_sub_area").innerText = "Gostaria de adicioná-lo?";
+  } else {
+    document.getElementById("contact_main_area").innerText = `Encontrada(s) ${contactInfo.length} entrada(s) para esse contato:`;
+
+    const tablesContainer = document.querySelector(`#tables_container`);
+
+    for (const contact of contactInfo) {
+      const tableContainer = createTable(contact.id);
+      tablesContainer.appendChild(tableContainer);
+      const link = createLink(contact.component_name, contact.url)
+      const headers = [
+        "Tipo",
+        "Componente",
+        ...Object.keys(contact.data)
+      ]
+      const values = [
+        entityMapping[contact.entity_type].name,
+        link,
+        ...Object.values(contact.data)
+      ]
+      addHeadersToTable(contact.id, headers);
+      addValuesToTable(contact.id, values);
+
+      // addValueToTable("Tipo", entityMapping[contact.entity_type].name, tableBody);
+      // addValueToTable("Componente", link, tableBody);
+
+      // for (let key in contact.data) {
+      //   if (contact.data.hasOwnProperty(key)) {
+      //     if (contact.data[key] != null && contact.data[key] != "" && contact.data[key] != "-")
+      //       addValueToTable(key, contact.data[key], tableBody);
+      //   }
+      // }
+    }
+  }
+
+  enableContactInfoPage();
+}
+
+const entityMapping = {
+  "ContactApp::Contact": {
+    "name": "Contato"
+  },
+  "BusinessApp::Business": {
+    "name": "Negócio"
+  },
+  "KanbanApp::Opportunity": {
+    "name": "Oportunidade"
+  }
+}
+
+// function createTable(tableId) {
+//   var tableBody = document.createElement('table');
+//   tableBody.setAttribute("id", tableId);
+//   tableBody.setAttribute("class", "table");
+//   var tableHead = document.createElement("thead");
+//   var valueBody = document.createElement("tbody");
+
+//   tableBody.appendChild(tableHead);
+//   tableBody.appendChild(valueBody);
+
+//   return tableBody;
+// }
+
+function createTable(tableId) {
+  var tableContainer = document.createElement('div');
+  tableContainer.setAttribute("class", "container-table100");
+  tableContainer.setAttribute("id", `container-table-${tableId}`);
+
+  var tableWrapper = document.createElement('div');
+  tableWrapper.setAttribute("class", "wrap-table100");
+  tableWrapper.setAttribute("id", `wrap-table-${tableId}`);
+
+  var tableBody = document.createElement('div');
+  tableBody.setAttribute("class", "table");
+  tableBody.setAttribute("id", `table-${tableId}`);
+
+  var rowHeader = document.createElement("div");
+  rowHeader.setAttribute("class", "row header");
+  rowHeader.setAttribute("id", `header-${tableId}`);
+
+  var row = document.createElement("div");
+  row.setAttribute("class", "row");
+  row.setAttribute("id", `row-${tableId}`);
+
+  tableContainer.appendChild(tableWrapper);
+  tableWrapper.appendChild(tableBody);
+
+  tableBody.appendChild(rowHeader);
+  tableBody.appendChild(row);
+
+  return tableContainer;
+}
+
+function addHeadersToTable(tableId, headers) {
+  var header = document.getElementById(`header-${tableId}`);
+
+  headers.forEach((headerText) => {
+    var cell = document.createElement("div");
+    cell.setAttribute("class", "cell");
+    cell.textContent = headerText;
+    header.appendChild(cell);
+  });
+
+  return header;
+}
+
+function addValuesToTable(tableId, values) {
+  var row = document.getElementById(`row-${tableId}`);
+
+  values.forEach((value) => {
+    var cell = document.createElement("div");
+    cell.setAttribute("class", "cell");
+    // cell.setAttribute("data-title", value);
+    if (typeof value === "object") {
+      cell.appendChild(value);
+    } else {
+      cell.setAttribute("data-title", value);
+      cell.textContent = value;
+    }
+    // cell.textContent = value;
+    row.appendChild(cell);
+  });
+
+  return row;
+}
+
+function createLink(text, url) {
+  const contactUrl = `<a href="${fullUrl(url)}" target="_blank">${text}</a>`
+  const temp = document.createElement('a');
+  temp.innerHTML = contactUrl;
+  const htmlObject = temp.firstChild;
+
+  return htmlObject;
+}
+
+function addValueToTable(key, value, tableBody) {
+  const row = document.createElement("tr");
+  const keyCell = document.createElement("td");
+  const valueCell = document.createElement("td");
+
+  keyCell.textContent = key;
+
+  if (typeof value === "object") {
+    valueCell.appendChild(value);
+  } else {
+    valueCell.textContent = value;
+  }
+
+  row.appendChild(keyCell);
+  row.appendChild(valueCell);
+
+  tableBody.appendChild(row);
+}
+
+function fullUrl(path) {
+  return `https://${Config.baseUrl}${path}`;
 }
 
 function enableWhatsAppNotOpened() {
-  document.getElementById("form_container").style.display = "none";
-  document.getElementById("already_logged_in_container").style.display = "none";
-  document.getElementById("whatsapp_web_not_opened").style.display = "";
+  enablePageByElementId("whatsapp_web_not_opened");
 }
 
+function enableContactInfoPage() {
+  enablePageByElementId("contact_info");
+}
+
+function enablePageByElementId(elementId) {
+  console.log("ESTOU SENO CHAMADO!!!")
+  console.log(elementId)
+
+  pageIds.forEach((pageId) => {
+    document.getElementById(pageId).style.display = "none";
+  });
+
+  document.getElementById(elementId).style.display = "";
+}

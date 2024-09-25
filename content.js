@@ -53,5 +53,6 @@ window.onbeforeunload = () => {
 };
 
 window.addEventListener("ChatWindowFocused", event => {
-
+	console.log("[Event Listener Added] ChatWindowFocused")
+	console.log(event);
 })
