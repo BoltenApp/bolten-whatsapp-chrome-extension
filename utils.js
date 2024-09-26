@@ -75,6 +75,10 @@ function addValueToTable(key, value, tableBody) {
 }
 
 function createSelect(selectId) {
+  if (document.getElementById(selectId)) {
+    document.getElementById(selectId).remove();
+  }
+
   const selectElement = document.createElement('select');
   selectElement.setAttribute("id", selectId);
 
@@ -95,4 +99,46 @@ function createLink(text, url) {
   const htmlObject = temp.firstChild;
 
   return htmlObject;
+}
+
+function createAnchor(text, elementId) {
+  const contactUrl = `<a id=${elementId} href="#">${text}</a>`
+  const temp = document.createElement('a');
+  temp.innerHTML = contactUrl;
+  const htmlObject = temp.firstChild;
+
+  return htmlObject;
+}
+
+function fillElementWithText(elementId, text) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    if (typeof text === "object") {
+      element.appendChild(text);
+    } else {
+      element.textContent += text;
+    }
+  }
+}
+
+function clearElementText(elementId) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.textContent = "";
+  }
+}
+
+function fillElementWithSrc(elementId, src) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.src = src;
+  }
+}
+
+function removeElementById(elementId) {
+  const element = document.getElementById(elementId);
+
+  if (element) {
+    element.remove();
+  }
 }

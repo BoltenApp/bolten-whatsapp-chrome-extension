@@ -11,6 +11,8 @@ import {
   enableContactInfoPage,
   enableLoginPage,
   enableAlreadyLoggedInPage,
+  enableContactIndexPage,
+  enableContactCreatePage
 } from './pageHandler.js';
 
 import {
@@ -77,59 +79,72 @@ function fillPageWithContactInfo(contacts, whatsappInfo = {
   phoneNumber: "5515997302927",
 }) {
   fillPageWithWhatsAppInfo(whatsappInfo);
+  showContactCount(contacts.length);
 
+  document.getElementById("logoutLinkContact").addEventListener("click", logoutFromWhatsappWeb);
+  enableContactInfoPage();
+
+  if (contacts.length == 0) {
+    return showContactCreate()
+  }
+
+  showContactIndex(contacts);
+}
+
+function showContactCount(contactCount) {
+  clearElementText("entries_info");
+
+  if (contactCount > 0) {
+    const link = createAnchor(`${contactCount} entrada(s) encontrada(s) para esse contato`, "showContactIndex")
+    fillElementWithText("entries_info", link)
+  } else {
+    fillElementWithText("entries_info", "Esse contato não foi encontrado no seu Funil")
+  }
+}
+
+function fillPageWithWhatsAppInfo(whatsappInfo) {
+  clearElementText("contact_name");
+  clearElementText("contact_phone_number");
+
+  fillElementWithText("contact_name", whatsappInfo.name);
+  fillElementWithText("contact_phone_number", `✆  ${whatsappInfo.phoneNumber}`);
+  fillElementWithSrc("contact_photo_img", whatsappInfo.profilePicUrl);
+}
+
+function showContactIndex(contacts) {
   const entityMapping = {
     "ContactApp::Contact": { "name": "Contato" },
     "BusinessApp::Business": { "name": "Negócio" },
     "KanbanApp::Opportunity": { "name": "Oportunidade" }
   }
 
-  if (contacts.length == 0) {
-    document.getElementById("entries_info").innerText = "Esse contato não foi encontrado no seu Funil";
-    document.getElementById("entries_sub_info").innerText = "Onde gostaria de adicioná-lo?";
+  const contactsContainer = document.querySelector(`#contacts_container`);
+  contactsContainer.innerHTML = "";
 
-    showComponentSelectionDropdown()
-  } else {
-    document.getElementById("entries_info").innerText = `Encontrada(s) ${contacts.length} entrada(s) para esse contato:`;
+  for (const contact of contacts) {
+    const tableBody = createTable(contact.id);
+    const link = createLink(`${contact.component_name} (${entityMapping[contact.entity_type].name})`, contact.url)
+    addValueToTable("Encontrado em", link, tableBody);
 
-    const tablesContainer = document.querySelector(`#tables_container`);
-
-    for (const contact of contacts) {
-      const tableBody = createTable(contact.id);
-      const link = createLink(`${contact.component_name} (${entityMapping[contact.entity_type].name})`, contact.url)
-      addValueToTable("Encontrado em", link, tableBody);
-
-      for (let key in contact.data) {
-        if (contact.data.hasOwnProperty(key)) {
-          if (contact.data[key] != null && contact.data[key] != "" && contact.data[key] != "-")
-            addValueToTable(key, contact.data[key], tableBody);
-        }
+    for (let key in contact.data) {
+      if (contact.data.hasOwnProperty(key)) {
+        if (contact.data[key] != null && contact.data[key] != "" && contact.data[key] != "-")
+          addValueToTable(key, contact.data[key], tableBody);
       }
-
-      tablesContainer.appendChild(tableBody);
     }
+
+    contactsContainer.appendChild(tableBody);
   }
-  enableContactInfoPage();
+
+  document.getElementById("showContactCreate").addEventListener("click", showContactCreate);
+  enableContactIndexPage()
 }
 
-function fillPageWithWhatsAppInfo(whatsappInfo) {
-  const contactNameElement = document.getElementById("contact_name");
-  const contactPhotoElement = document.getElementById("contact_photo_img");
-  const contactPhoneNumberElement = document.getElementById("contact_phone_number");
-
-  if (contactNameElement) {
-    contactNameElement.innerText = whatsappInfo.name;
-  }
-
-  if (contactPhotoElement) {
-    contactPhotoElement.src = whatsappInfo.profilePicUrl;
-  }
-
-  if (contactPhoneNumberElement) {
-    contactPhoneNumberElement.innerText = whatsappInfo.phoneNumber;
-  }
+function showContactCreate() {
+  showComponentSelectionDropdown();
+  enableContactCreatePage();
+  showContactIndexOption();
 }
-
 
 async function showComponentSelectionDropdown() {
   const userToken = getCookie("UserKey");
@@ -145,6 +160,17 @@ async function showComponentSelectionDropdown() {
   });
 }
 
+function showContactIndexOption() {
+  const entriesInfo = document.getElementById("entries_info")
+
+  if (entriesInfo.textContent === "Esse contato não foi encontrado no seu Funil") {
+    return
+  }
+
+  document.getElementById("showContactIndex").addEventListener("click", enableContactIndexPage);
+  document.getElementById("show_contact_index").style.display = "";
+}
+
 function fillInComponentSelect(components) {
   const selectElement = createSelect("component_select");
 
@@ -157,26 +183,24 @@ function fillInComponentSelect(components) {
 }
 
 async function showComponentMappingDetails() {
+  clearMappingSection();
+
   const userToken = getCookie("UserKey");
   const componentId = document.getElementById("component_select").value;
 
-  await fetchComponentMappingFor(userToken, componentId)
-    .then(async (response) => {
-      if (response.status === 401) {
-        await unsetCookiesAndDisplayLoginPage();
-      } else if (response.status === 422) {
-        const errorCode = await response.json().code;
-        if (errorCode === "ChatApp::UnableToSetContactMappingError") {
-          alert("Esse componente não possui um campo de nome ou de telefone. Selecione outro componente ou adicione esses campos ao componente desejado");
-        }
-      } else {
-        const mapping = await response.json();
-        fillInComponentMappingDetails(mapping);
-      }
-    })
-    .catch((error) => {
-      alert(error);
-    });
+  await fetchComponentMappingFor(userToken, componentId).then(async (response) => {
+    const body = await response.json();
+
+    if (response.status === 401) {
+      await unsetCookiesAndDisplayLoginPage();
+    } else if (response.status === 422) {
+      treatMappingLogicErrors(body)
+    } else if (response.status === 200) {
+      fillInComponentMappingDetails(body);
+    } else {
+      showMappingWarningMessage("Estamos com uma instabilidade no sistema. Por favor, tente novamente mais tarde.");
+    }
+  });
 }
 
 export async function createContact(apiToken, externalId, componentId, payload) {
@@ -187,11 +211,31 @@ export async function createContact(apiToken, externalId, componentId, payload) 
       } else if (response.status === 204) {
         transitionToContactPage();
       } else if (response.status === 422) {
-        alert("O WhatsApp não está ativado nesse projeto. Ative o WhatsApp para criar contatos");
+        showMappingWarningMessage("O WhatsApp não está ativado nesse projeto. Ative o WhatsApp para criar contatos");
       }
-    }
-    );
+    });
 };
+
+function treatMappingLogicErrors(body) {
+  if (body.code === "ChatApp::UnableToSetContactMappingError") {
+    return showMappingWarningMessage("Esse componente não possui um campo de nome ou de telefone. Selecione outro componente ou adicione esses campos ao componente desejado.");
+  }
+
+  showMappingWarningMessage("Houve um erro inesperado. Por favor, contacte o suporte da Bolten.");
+}
+
+function showMappingWarningMessage(message) {
+  document.getElementById('mapping_warnings').textContent = message
+  document.getElementById('mapping_help_section').style.display = "";
+}
+
+function clearMappingSection() {
+  removeElementById("contact_preview");
+  removeElementById("create_contact_button");
+
+  document.getElementById('mapping_warnings').textContent = "";
+  document.getElementById('mapping_help_section').style.display = "none";
+}
 
 function fillInComponentMappingDetails(
   mapping,
@@ -199,14 +243,6 @@ function fillInComponentMappingDetails(
   phoneNumber = "5515997302927",
   externalId = "15997383817@us.com"
 ) {
-  if (document.getElementById('contact_preview')) {
-    document.getElementById('contact_preview').remove();
-  }
-
-  if (document.getElementById('create_contact_button')) {
-    document.getElementById('create_contact_button').remove();
-  }
-
   const userToken = getCookie("UserKey");
   const componentId = document.getElementById("component_select").value;
 
@@ -214,30 +250,18 @@ function fillInComponentMappingDetails(
   payload[mapping.full_name] = name;
   payload[mapping.whatsapp_phone_number] = phoneNumber;
 
-  const tablesContainer = document.querySelector(`#tables_container`);
+  const contactSubmitArea = document.querySelector(`#contact_submit`);
   const contactPreview = createTable("contact_preview");
   addValueToTable(mapping.full_name, name, contactPreview);
   addValueToTable(mapping.whatsapp_phone_number, phoneNumber, contactPreview);
-  tablesContainer.appendChild(contactPreview);
-
-  if (document.getElementById('contact_preview')) {
-    document.getElementById('contact_preview').remove();
-  }
+  contactSubmitArea.appendChild(contactPreview);
 
   const button = document.createElement('button');
   button.setAttribute('id', 'create_contact_button');
-  button.style.background = 'none';
-  button.style.color = 'blue';
-  button.style.border = 'none';
-  button.style.padding = '0';
-  button.style.textDecoration = 'underline';
-  button.style.cursor = 'pointer';
-  // Enhance appearance
-  button.style.fontSize = '16px';
-  button.style.fontFamily = 'Arial, sans-serif';
+  // button.type = 'submit';
   button.textContent = 'Criar Contato';
   button.addEventListener('click', function () {
     createContact(userToken, externalId, componentId, payload);
   });
-  tablesContainer.appendChild(button);
+  contactSubmitArea.appendChild(button);
 }

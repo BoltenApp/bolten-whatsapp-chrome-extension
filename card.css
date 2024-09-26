@@ -56,6 +56,18 @@ body {
   color: #446;
 }
 
+#contact_info {
+  margin-bottom: auto;
+}
+
+#mapping_warnings {
+  text-align: center;
+}
+
+#show_contact_index {
+  text-align: center;
+}
+
 #contact_main_area {
   margin-top: 20px;
   margin-bottom: 20px;
@@ -67,6 +79,7 @@ body {
 }
 
 #entries_info {
+  text-align: center;
   margin-top: 15px;
   margin-bottom: 15px;
 }
@@ -89,6 +102,30 @@ body {
 
 #dropdown_container {
   text-align: center;
+}
+
+#showContactCreateNotice {
+  margin-bottom: 15px;
+}
+
+#contact_submit {
+  text-align: center;
+}
+
+button {
+  width: 100%;
+  height: 56px;
+  border-radius: 5px;
+  border: none;
+  outline: none;
+  background: #FF6828;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 500;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-bottom: 28px;
+  transition: 0.3s ease;
 }
 
 select {

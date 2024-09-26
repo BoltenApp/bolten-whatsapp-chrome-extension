@@ -5,6 +5,11 @@ const pageIds = [
   "contact_info"
 ];
 
+const contactSubPageIds = [
+  "contact_index",
+  "contact_create"
+]
+
 export function enableWhatsAppNotOpened() {
   enablePageByElementId("whatsapp_web_not_opened");
 }
@@ -21,8 +26,24 @@ export function enableAlreadyLoggedInPage() {
   enablePageByElementId("already_logged_in_container");
 }
 
+export function enableContactIndexPage() {
+  enableContactSubPageByElementId("contact_index");
+}
+
+export function enableContactCreatePage() {
+  enableContactSubPageByElementId("contact_create");
+}
+
 function enablePageByElementId(elementId) {
   pageIds.forEach((pageId) => {
+    document.getElementById(pageId).style.display = "none";
+  });
+
+  document.getElementById(elementId).style.display = "";
+}
+
+function enableContactSubPageByElementId(elementId) {
+  contactSubPageIds.forEach((pageId) => {
     document.getElementById(pageId).style.display = "none";
   });
 

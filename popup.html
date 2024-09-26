@@ -66,9 +66,9 @@
   </div>
 
   <div id="contact_info" style="display: none; background-color: #f9ecdb;">
-    <!-- <div class="card">
-      <p>A glass-like card to demonstrate the <strong>Glassmorphism UI design</strong> trend.</p>
-    </div> -->
+    <div class="notice" style="display: flex; justify-content: flex-end; align-items: flex-end; height: 100%;">
+      <div class="sign_out"><a id="logoutLinkContact" href="#">Logout</a></div>
+    </div>
     <div id="contact_main_area">
       <div id="contact_photo">
         <img id="contact_photo_img" src="" alt="Contact Photo" />
@@ -79,13 +79,28 @@
       </div>
     </div>
     <hr>
+    <!-- <div id="entries_info"></div> -->
     <h3 id="entries_info"></h3>
-    <div class="notice">
-      <p id="entries_sub_info"></p>
+    <div id="contact_index" style="display: none;">
+      <div id="contacts_container"></div>
+      <div id="showContactCreateNotice">
+        <p>Clique <a id="showContactCreate" href="#">aqui</a> para criar outra entrada para este
+          contato</p>
+      </div>
     </div>
-    <div id="dropdown_container"></div>
-    <div id="mapping_container"></div>
-    <div id="tables_container">
+    <div id="contact_create" style="display: none;">
+      <div class="notice">
+        <p id="entries_sub_info">Onde gostaria de adicioná-lo?</p>
+      </div>
+      <div id="dropdown_container"></div>
+      <div id="mapping_container"></div>
+      <div id="contact_submit"></div>
+      <div class="notice" style="display: flex; align-items: center;">
+        <img id="mapping_help_section" width="35px" style="display: none" src="./bolty_ensinamento.png">
+        <strong>
+          <p id="mapping_warnings"></p>
+        </strong>
+      </div>
     </div>
   </div>
 </body>
