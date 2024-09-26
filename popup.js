@@ -18,16 +18,6 @@ import {
   logoutFromWhatsappWeb
 } from './pages/login.js';
 
-// Prevents extension from closing when clicking on another tab
-// document.addEventListener('click', evt => {
-//   console.log("KOKOKO")
-//   const a = evt.target.closest('a[href]');
-//   if (a) {
-//     evt.preventDefault();
-//     chrome.tabs.create({ url: a.href, active: false });
-//   }
-// });
-
 document.addEventListener('DOMContentLoaded', async function () {
   document.getElementById("loginButton").addEventListener("click", loginToWhatsappWeb);
 
@@ -189,10 +179,40 @@ async function showComponentMappingDetails() {
     });
 }
 
-function fillInComponentMappingDetails(mapping, name = "Oreia da Silva", phoneNumber = "5515997302927") {
+export async function createContact(apiToken, externalId, componentId, payload) {
+  await createContactByExternalId(apiToken, externalId, componentId, payload)
+    .then(async (response) => {
+      if (response.status === 401) {
+        await unsetCookiesAndDisplayLoginPage();
+      } else if (response.status === 204) {
+        transitionToContactPage();
+      } else if (response.status === 422) {
+        alert("O WhatsApp não está ativado nesse projeto. Ative o WhatsApp para criar contatos");
+      }
+    }
+    );
+};
+
+function fillInComponentMappingDetails(
+  mapping,
+  name = "Oreia da Silva",
+  phoneNumber = "5515997302927",
+  externalId = "15997383817@us.com"
+) {
   if (document.getElementById('contact_preview')) {
     document.getElementById('contact_preview').remove();
   }
+
+  if (document.getElementById('create_contact_button')) {
+    document.getElementById('create_contact_button').remove();
+  }
+
+  const userToken = getCookie("UserKey");
+  const componentId = document.getElementById("component_select").value;
+
+  const payload = {}
+  payload[mapping.full_name] = name;
+  payload[mapping.whatsapp_phone_number] = phoneNumber;
 
   const tablesContainer = document.querySelector(`#tables_container`);
   const contactPreview = createTable("contact_preview");
@@ -200,10 +220,24 @@ function fillInComponentMappingDetails(mapping, name = "Oreia da Silva", phoneNu
   addValueToTable(mapping.whatsapp_phone_number, phoneNumber, contactPreview);
   tablesContainer.appendChild(contactPreview);
 
+  if (document.getElementById('contact_preview')) {
+    document.getElementById('contact_preview').remove();
+  }
+
   const button = document.createElement('button');
+  button.setAttribute('id', 'create_contact_button');
+  button.style.background = 'none';
+  button.style.color = 'blue';
+  button.style.border = 'none';
+  button.style.padding = '0';
+  button.style.textDecoration = 'underline';
+  button.style.cursor = 'pointer';
+  // Enhance appearance
+  button.style.fontSize = '16px';
+  button.style.fontFamily = 'Arial, sans-serif';
   button.textContent = 'Criar Contato';
   button.addEventListener('click', function () {
-    createContactByExternalId();
+    createContact(userToken, externalId, componentId, payload);
   });
   tablesContainer.appendChild(button);
 }

@@ -32,12 +32,12 @@ async function notifyTab(message, successAction, failureAction) {
   for (const tab of tabs) {
     if (tab.url && tab.url.includes(Config.whatsappUrl)) {
       chrome.tabs.sendMessage(tab.id, message).then((response) => {
-        // console.info("Popup received response '%s'", response)
+        console.info("Popup received response '%s'", response)
         successAction && successAction();
-        // enableContactInfoPage()
+        enableContactInfoPage()
       }).catch((error) => {
         failureAction && failureAction();
-        // console.warn("Popup could not send message to tab %d", tab.id, error)
+        console.warn("Popup could not send message to tab %d", tab.id, error)
       })
       break;
     }
