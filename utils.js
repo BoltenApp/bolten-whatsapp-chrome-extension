@@ -142,3 +142,19 @@ function removeElementById(elementId) {
     element.remove();
   }
 }
+
+function addClickListener(elementId, action) {
+  const element = document.getElementById(elementId);
+
+  if (element) {
+    element.addEventListener("click", action);
+  }
+}
+
+function addChangeListener(elementId, action) {
+  const element = document.getElementById(elementId);
+
+  if (element) {
+    element.addEventListener("change", action);
+  }
+}
