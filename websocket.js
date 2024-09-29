@@ -44,6 +44,7 @@ function subscribeToBolten() {
 }
 
 function handleBoltenMessages(event) {
+  console.log("Message received", event)
   const message = JSON.parse(event.data).message;
 
   if (message) {

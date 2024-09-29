@@ -8,6 +8,7 @@ export async function setCookiesAndNotifyWhatsappTab(userToken, clientUserId) {
   if (userToken && clientUserId) {
     setCookie("UserKey", userToken, 7);
     setCookie("ClientUserId", clientUserId, 7);
+    console.log("Cookie set ClientUserId: ", clientUserId);
     notifyTab({ userToken: userToken, clientUserId: clientUserId }, enableAlreadyLoggedInPage, enableWhatsAppNotOpened);
     // TODO: Remove this line
     // transitionToContactPage();

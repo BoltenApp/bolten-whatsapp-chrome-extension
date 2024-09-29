@@ -53,6 +53,15 @@ window.onbeforeunload = () => {
 };
 
 window.addEventListener("ChatWindowFocused", event => {
-	console.log("[Event Listener Added] ChatWindowFocused")
-	console.log(event);
+	console.log("[Event Listener Added] ChatWindowFocused ON BROWSER")
+	console.log(event.detail);
+	// chrome.runtime.sendMessage("FokusChatWindow", event.detail);
+	chrome.runtime.sendMessage({
+		data: {
+			...event.detail,
+			type: "ShowSenderInfo",
+		}
+	}, function (response) {
+		console.dir(response);
+	});
 })

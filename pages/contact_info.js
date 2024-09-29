@@ -14,11 +14,7 @@ import {
   showContactCreate
 } from './contact_create.js';
 
-export function showContactInfo(contacts, whatsappInfo = {
-  name: "Oreia da Silva",
-  profilePicUrl: "https://media-gru1-1.cdn.whatsapp.net/v/t61.24694-24/432998152_816058723788076_2053571525311385107_n.jpg?ccb=11-4&oh=01_Q5AaIFhDo1SCIHA5A2UKmClkYUdQB9m0aDt77RRY43ZD7InX&oe=66F81BD4&_nc_sid=5e03e0&_nc_cat=108",
-  phoneNumber: "5515997302927",
-}) {
+export function showContactInfo(contacts, whatsappInfo) {
   addClickListener("logoutLinkContact", logoutFromWhatsappWeb);
 
   fillPageWithWhatsAppInfo(whatsappInfo);
@@ -33,9 +29,9 @@ function fillPageWithWhatsAppInfo(whatsappInfo) {
   clearElementText("contact_name");
   clearElementText("contact_phone_number");
 
-  fillElementWithText("contact_name", whatsappInfo.name);
-  fillElementWithText("contact_phone_number", `✆  ${whatsappInfo.phoneNumber}`);
-  fillElementWithSrc("contact_photo_img", whatsappInfo.profilePicUrl);
+  fillElementWithText("contact_name", whatsappInfo.senderName);
+  fillElementWithText("contact_phone_number", `✆  ${whatsappInfo.senderNumber}`);
+  fillElementWithSrc("contact_photo_img", whatsappInfo.profilePicThumb);
 }
 
 function showContactCount(contactCount) {
