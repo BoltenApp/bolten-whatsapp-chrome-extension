@@ -34,7 +34,6 @@ async function notifyTab(message, successAction, failureAction) {
       chrome.tabs.sendMessage(tab.id, message).then((response) => {
         console.info("Popup received response '%s'", response)
         successAction && successAction();
-        enableContactInfoPage()
       }).catch((error) => {
         failureAction && failureAction();
         console.warn("Popup could not send message to tab %d", tab.id, error)

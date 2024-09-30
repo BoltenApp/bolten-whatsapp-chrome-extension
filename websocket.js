@@ -44,7 +44,7 @@ function subscribeToBolten() {
 }
 
 function handleBoltenMessages(event) {
-  console.log("Message received", event)
+  console.log("Websocket event received", event)
   const message = JSON.parse(event.data).message;
 
   if (message) {

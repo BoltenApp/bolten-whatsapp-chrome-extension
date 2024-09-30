@@ -15,7 +15,7 @@ import {
 
 import {
   transitionToContactPage
-} from './../popup.js';
+} from './contact_index.js';
 
 export function showContactCreate() {
   showComponentSelectionDropdown();

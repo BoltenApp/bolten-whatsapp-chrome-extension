@@ -1,10 +1,36 @@
 import {
+  fetchContactByExternalId,
+} from "./../api.js";
+
+import {
   enableContactIndexPage
 } from './../pageHandler.js';
 
 import {
+  showContactInfo
+} from './contact_info.js';
+
+import {
   showContactCreate
 } from './contact_create.js';
+
+import {
+  unsetCookiesAndDisplayLoginPage
+} from './shared.js';
+
+export async function transitionToContactPage(whatsappInfo) {
+  const userToken = getCookie("UserKey");
+  // const clientUserId = getCookie("ClientUserId");
+
+  await fetchContactByExternalId(userToken, whatsappInfo.senderId).then(async (response) => {
+    if (response.status === 401) {
+      await unsetCookiesAndDisplayLoginPage();
+    } else {
+      const contacts = await response.json();
+      showContactInfo(contacts, whatsappInfo);
+    }
+  });
+}
 
 export function showContactIndex(contacts) {
   const entityMapping = {
