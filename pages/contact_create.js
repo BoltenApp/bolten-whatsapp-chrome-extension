@@ -102,24 +102,29 @@ function clearMappingSection() {
   // document.getElementById('bolty_help').style.display = "none";
 }
 
-function fillInComponentMappingDetails(
-  mapping,
-  name = "Oreia da Silva",
-  phoneNumber = "5515997302927",
-  externalId = "15997383817@us.commm"
-) {
+function currentContact() {
+  return {
+    senderName: document.getElementById("contact_name").textContent,
+    senderNumber: document.getElementById("contact_phone_number").textContent,
+    senderId: document.getElementById("contact_external_id").textContent,
+    profilePicThumb: document.getElementById("contact_photo_img").src
+  }
+}
+
+function fillInComponentMappingDetails(mapping) {
   const userToken = getCookie("UserKey");
   const componentId = document.getElementById("component_select").value;
 
-  const payload = {}
-  payload[mapping.full_name] = name;
-  payload[mapping.whatsapp_phone_number] = phoneNumber;
+  const payload = {};
+
+  payload[mapping.full_name] = currentContact().senderName;
+  payload[mapping.whatsapp_phone_number] = currentContact().senderNumber;
 
   const contactSubmitArea = document.querySelector(`#contact_submit`);
   const contactPreview = createTable("contact_preview");
   // addValueToTable("Prévia do Contato", "\n", contactPreview);
-  addValueToTable(mapping.full_name, name, contactPreview);
-  addValueToTable(mapping.whatsapp_phone_number, phoneNumber, contactPreview);
+  addValueToTable(mapping.full_name, currentContact().senderName, contactPreview);
+  addValueToTable(mapping.whatsapp_phone_number, currentContact().senderNumber, contactPreview);
   // fillElementWithText('contact_preview_subtitle', "Prévia do Contato");
   contactSubmitArea.appendChild(contactPreview);
 
@@ -128,7 +133,7 @@ function fillInComponentMappingDetails(
   button.setAttribute('id', 'create_contact_button');
   button.textContent = 'Criar Contato';
   button.addEventListener('click', function () {
-    createContact(userToken, externalId, componentId, payload);
+    createContact(userToken, currentContact().senderId, componentId, payload);
   });
   p.appendChild(button);
   contactPreview.appendChild(p);
@@ -140,7 +145,7 @@ export async function createContact(apiToken, externalId, componentId, payload) 
       if (response.status === 401) {
         await unsetCookiesAndDisplayLoginPage();
       } else if (response.status === 204) {
-        transitionToContactPage();
+        transitionToContactPage(currentContact());
       } else if (response.status === 422) {
         showMappingWarningMessage("O WhatsApp não está ativado nesse projeto. Ative o WhatsApp para criar contatos");
       }

@@ -20,13 +20,13 @@ import {
   transitionToContactPage
 } from './pages/contact_index.js';
 
-
 document.addEventListener('DOMContentLoaded', async function () {
   addClickListener("loginButton", loginToWhatsappWeb);
   addClickListener("logoutLink", logoutFromWhatsappWeb);
 
   if (cookieExists("UserKey")) {
     const userToken = getCookie("UserKey");
+    // const currentContact = {}
     await fetchClientUserId(userToken)
       .then((response) => {
         if (response.status === 401) {

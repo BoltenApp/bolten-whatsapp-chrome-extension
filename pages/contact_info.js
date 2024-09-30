@@ -30,7 +30,8 @@ function fillPageWithWhatsAppInfo(whatsappInfo) {
   clearElementText("contact_phone_number");
 
   fillElementWithText("contact_name", whatsappInfo.senderName);
-  fillElementWithText("contact_phone_number", `✆  ${whatsappInfo.senderNumber}`);
+  fillElementWithText("contact_phone_number", `${whatsappInfo.senderNumber}`);
+  fillElementWithText("contact_external_id", whatsappInfo.senderId);
   fillElementWithSrc("contact_photo_img", whatsappInfo.profilePicThumb);
 }
 
