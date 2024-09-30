@@ -28,6 +28,7 @@ export function showContactInfo(contacts, whatsappInfo) {
 function fillPageWithWhatsAppInfo(whatsappInfo) {
   clearElementText("contact_name");
   clearElementText("contact_phone_number");
+  clearElementText("mapping_warnings");
 
   fillElementWithText("contact_name", whatsappInfo.senderName);
   fillElementWithText("contact_phone_number", `${whatsappInfo.senderNumber}`);

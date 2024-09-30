@@ -12,7 +12,7 @@ const popUpEventHandlers = {
 // Pop-up event listener
 chrome.runtime.onMessage.addListener(async (request, _sender, _sendResponse) => {
 	if (request.type && popUpEventHandlers[request.type]) {
-		console.log("Handling message from Pop-Up: ", request);
+		console.debug("Handling message from Pop-Up: ", request);
 		popUpEventHandlers[request.type](request.data);
 	}
 })
@@ -41,16 +41,16 @@ window.addEventListener("WhatsappWebDisconnected", () => {
 
 // Whatsapp event listeners
 window.addEventListener("ConversationReceived", event => {
-	console.log("[Event Listener Added] ConversationReceived")
+	console.debug("[Event Listener] ConversationReceived")
 	sendActionToWebsocket('display_conversation_on_chat', event.detail);
 });
 
 window.addEventListener("MessageSent", event => {
-	console.log("[Event Listener Added] Event Sent")
+	console.debug("[Event Listener] Event Sent")
 });
 
 window.addEventListener("NewMessageArrived", event => {
-	console.log("[Event Listener Added] New Message Arrived")
+	console.debug("[Event Listener] New Message Arrived")
 	const message = {
 		...event.detail,
 		status: 'delivered',
@@ -62,7 +62,7 @@ window.addEventListener("NewMessageArrived", event => {
 });
 
 window.addEventListener("CurrentContactFetched", event => {
-	console.log("[Event Listener Added] CurrentContactFetched", event)
+	console.debug("[Event Listener] CurrentContactFetched", event)
 
 	chrome.runtime.sendMessage({
 		data: {
@@ -73,7 +73,7 @@ window.addEventListener("CurrentContactFetched", event => {
 })
 
 window.onbeforeunload = () => {
-	console.log("[Event Listener Added] Disconecting from WPP Web")
+	console.debug("[Event Listener] Disconecting from WPP Web")
 
 	disconnect();
 	chrome.runtime.sendMessage("WhatsappWebDisconnected");

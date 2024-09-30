@@ -18,7 +18,7 @@ import {
   unsetCookiesAndDisplayLoginPage
 } from './shared.js';
 
-export async function transitionToContactPage(whatsappInfo) {
+export async function transitionToContactsPage(whatsappInfo) {
   const userToken = getCookie("UserKey");
   // const clientUserId = getCookie("ClientUserId");
 

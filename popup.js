@@ -17,7 +17,7 @@ import {
 } from './pages/login.js';
 
 import {
-  transitionToContactPage
+  transitionToContactsPage
 } from './pages/contact_index.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   if (cookieExists("UserKey")) {
     const userToken = getCookie("UserKey");
-    // const currentContact = {}
     await fetchClientUserId(userToken)
       .then((response) => {
         if (response.status === 401) {
@@ -56,7 +55,7 @@ function fetchCurrentContact() {
 // Listeners from WhatsApp Web Chrome tab
 chrome.runtime.onMessage.addListener(function (message, _sender, sendResponse) {
   if (message.data && message.data.type === "CurrentContactReceived") {
-    transitionToContactPage(message.data.contact);
+    transitionToContactsPage(message.data.contact);
   }
   sendResponse({
     data: "OK"

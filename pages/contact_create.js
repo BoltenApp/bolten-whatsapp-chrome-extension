@@ -14,7 +14,7 @@ import {
 } from './shared.js';
 
 import {
-  transitionToContactPage
+  transitionToContactsPage
 } from './contact_index.js';
 
 export function showContactCreate() {
@@ -145,7 +145,7 @@ export async function createContact(apiToken, externalId, componentId, payload) 
       if (response.status === 401) {
         await unsetCookiesAndDisplayLoginPage();
       } else if (response.status === 204) {
-        transitionToContactPage(currentContact());
+        transitionToContactsPage(currentContact());
       } else if (response.status === 422) {
         showMappingWarningMessage("O WhatsApp não está ativado nesse projeto. Ative o WhatsApp para criar contatos");
       }
