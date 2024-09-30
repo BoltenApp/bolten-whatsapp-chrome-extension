@@ -11,7 +11,7 @@
 
 body {
   width: 100%;
-  min-height: 100vh;
+  min-height: 600px;
   padding: 0 10px;
   display: flex;
   background: #f9ecdb;

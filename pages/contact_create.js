@@ -90,7 +90,6 @@ function treatMappingLogicErrors(body) {
 
 function showMappingWarningMessage(message) {
   document.getElementById('mapping_warnings').textContent = message
-  // document.getElementById('bolty_help').style.display = "";
 }
 
 function clearMappingSection() {
@@ -99,7 +98,6 @@ function clearMappingSection() {
 
   document.getElementById('mapping_warnings').textContent = "";
   document.getElementById('contact_preview_subtitle').textContent = "";
-  // document.getElementById('bolty_help').style.display = "none";
 }
 
 function currentContact() {
@@ -118,14 +116,12 @@ function fillInComponentMappingDetails(mapping) {
   const payload = {};
 
   payload[mapping.full_name] = currentContact().senderName;
-  payload[mapping.whatsapp_phone_number] = currentContact().senderNumber;
+  payload[mapping.whatsapp_phone_number] = currentContact().senderNumber.slice(2);
 
   const contactSubmitArea = document.querySelector(`#contact_submit`);
   const contactPreview = createTable("contact_preview");
-  // addValueToTable("Prévia do Contato", "\n", contactPreview);
   addValueToTable(mapping.full_name, currentContact().senderName, contactPreview);
   addValueToTable(mapping.whatsapp_phone_number, currentContact().senderNumber, contactPreview);
-  // fillElementWithText('contact_preview_subtitle', "Prévia do Contato");
   contactSubmitArea.appendChild(contactPreview);
 
   const p = document.createElement('p');

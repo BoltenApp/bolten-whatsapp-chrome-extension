@@ -8,14 +8,19 @@
   <title>Extensão Whatsapp | Bolten</title>
   <link rel="stylesheet" href="content.css" />
   <link rel="stylesheet" href="card.css" />
-  <!-- <link rel="stylesheet" href="table-util.css" /> -->
   <script src="config.js"></script>
   <script src="utils.js"></script>
   <script type="module" src="popup.js"></script>
 </head>
 
 <body>
-  <div class="login_form" id="form_container">
+  <div id="loading_container" style="background-color: #f9ecdb;">
+    <div style="text-align: center;">
+      <img width="120px" style="margin-bottom: -30px; padding-bottom: 40px" src="./bolty_construcao.gif">
+    </div>
+  </div>
+
+  <div class="login_form" style="display: none" id="form_container">
     <form action="https://app.bolten.io/api/login" method="post">
       <div style="text-align: right;">
         <img width="80px" style="rotate: 15deg; margin-bottom: -30px; padding-bottom: 20px" src="./bolty_clique.png">

@@ -47,6 +47,8 @@
 		const chat = WPP.chat.getActiveChat();
 
 		if (!chat || !chat.__x_isUser) {
+			window.dispatchEvent(new CustomEvent("ContactNotFoucused"));
+
 			return;
 		}
 

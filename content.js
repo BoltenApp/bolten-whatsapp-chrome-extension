@@ -46,7 +46,7 @@ window.addEventListener("ConversationReceived", event => {
 });
 
 window.addEventListener("MessageSent", event => {
-	console.debug("[Event Listener] Event Sent")
+	console.debug("[Event Listener] Message Sent")
 });
 
 window.addEventListener("NewMessageArrived", event => {
@@ -68,6 +68,16 @@ window.addEventListener("CurrentContactFetched", event => {
 		data: {
 			type: "CurrentContactReceived",
 			contact: event.detail
+		}
+	});
+})
+
+window.addEventListener("ContactNotFoucused", event => {
+	console.debug("[Event Listener] ContactNotFoucused", event)
+
+	chrome.runtime.sendMessage({
+		data: {
+			type: "CurrentContactNotFound",
 		}
 	});
 })

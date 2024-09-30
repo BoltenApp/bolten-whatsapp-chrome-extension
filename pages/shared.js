@@ -4,6 +4,16 @@ import {
   enableAlreadyLoggedInPage,
 } from './../pageHandler.js';
 
+export function fetchCurrentContact() {
+  notifyTab(
+    {
+      type: "CurrentContactRequested"
+    },
+    enableAlreadyLoggedInPage,
+    enableWhatsAppNotOpened
+  );
+}
+
 export async function setCookiesAndNotifyWhatsappTab(userToken, clientUserId) {
   if (userToken && clientUserId) {
     setCookie("UserKey", userToken, 7);
@@ -17,7 +27,7 @@ export async function setCookiesAndNotifyWhatsappTab(userToken, clientUserId) {
           clientUserId: clientUserId
         }
       },
-      enableAlreadyLoggedInPage,
+      fetchCurrentContact,
       enableWhatsAppNotOpened
     );
   }

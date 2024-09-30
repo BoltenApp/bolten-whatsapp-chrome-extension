@@ -2,7 +2,8 @@ const pageIds = [
   "form_container",
   "already_logged_in_container",
   "whatsapp_web_not_opened",
-  "contact_info"
+  "contact_info",
+  "loading_container",
 ];
 
 const contactSubPageIds = [
@@ -24,6 +25,10 @@ export function enableLoginPage() {
 
 export function enableAlreadyLoggedInPage() {
   enablePageByElementId("already_logged_in_container");
+}
+
+export function enableLoadingPage() {
+  enablePageByElementId("loading_container");
 }
 
 export function enableContactIndexPage() {

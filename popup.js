@@ -3,7 +3,7 @@ import {
 } from "./api.js";
 
 import {
-  enableWhatsAppNotOpened,
+  enableLoginPage,
   enableAlreadyLoggedInPage,
 } from './pageHandler.js';
 
@@ -30,34 +30,36 @@ document.addEventListener('DOMContentLoaded', async function () {
       .then((response) => {
         if (response.status === 401) {
           console.log("Não foi possível fazer login com o Token armazenado. Autentique-se novamente");
+          enableLoginPage();
           return {};
         } else {
           return response.json();
         }
       })
       .then(async (json) => {
-        await setCookiesAndNotifyWhatsappTab(userToken, json.id, enableAlreadyLoggedInPage, enableWhatsAppNotOpened);
-        fetchCurrentContact()
+        await setCookiesAndNotifyWhatsappTab(userToken, json.id);
       })
+  } else {
+    enableLoginPage();
   }
 });
 
-function fetchCurrentContact() {
-  notifyTab(
-    {
-      type: "CurrentContactRequested"
-    },
-    enableAlreadyLoggedInPage,
-    enableWhatsAppNotOpened
-  );
-}
 
 // Listeners from WhatsApp Web Chrome tab
 chrome.runtime.onMessage.addListener(function (message, _sender, sendResponse) {
-  if (message.data && message.data.type === "CurrentContactReceived") {
-    transitionToContactsPage(message.data.contact);
+  if (message.data) {
+    switch (message.data.type) {
+      case "CurrentContactReceived":
+        transitionToContactsPage(message.data.contact);
+        break;
+      case "CurrentContactNotFound":
+        enableAlreadyLoggedInPage();
+        break;
+      default:
+        break;
+    }
+    sendResponse({
+      data: "OK"
+    });
   }
-  sendResponse({
-    data: "OK"
-  });
 });
