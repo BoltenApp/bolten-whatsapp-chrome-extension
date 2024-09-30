@@ -116,7 +116,7 @@ function fillInComponentMappingDetails(mapping) {
   const payload = {};
 
   payload[mapping.full_name] = currentContact().senderName;
-  payload[mapping.whatsapp_phone_number] = currentContact().senderNumber.slice(2);
+  payload[mapping.whatsapp_phone_number] = currentContact().senderNumber;
 
   const contactSubmitArea = document.querySelector(`#contact_submit`);
   const contactPreview = createTable("contact_preview");
