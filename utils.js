@@ -60,9 +60,7 @@ function createTable(tableId) {
 
 function addValueToTable(key, value, tableBody) {
   const keyCell = document.createElement("p");
-  const bold = document.createElement("b");
-  keyCell.appendChild(bold);
-  bold.textContent = `${key}: `;
+  keyCell.textContent += `${key}: `;
 
   if (typeof value === "object") {
     keyCell.appendChild(value);

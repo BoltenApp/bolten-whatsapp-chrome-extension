@@ -12,11 +12,38 @@
 body {
   width: 100%;
   min-height: 600px;
-  padding: 0 10px;
+  padding: 0 30px;
   display: flex;
-  background: #f9ecdb;
+  background: #fff;
   justify-content: center;
   align-items: center;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin-bottom: 24px;
+}
+
+.online-status {
+  margin-top: 8px;
+  margin-bottom: 24px;
+}
+
+.message-container {
+  text-align: center;
+}
+
+#bolty-logo {
+  position: absolute;
+  right: 24px;
+  top: 0;
+}
+
+#notice-not-supported {
+  margin-top: 40px;
+  color: #aaa;
 }
 
 /* Login form styling */
@@ -26,7 +53,7 @@ body {
   background: #fff;
   border-radius: 6px;
   padding: 41px 30px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.15);
 }
 
 .login_form h3 {
@@ -151,7 +178,7 @@ a:hover {
 /* Login button styling */
 form button {
   width: 100%;
-  height: 56px;
+  height: 42px;
   border-radius: 5px;
   border: none;
   outline: none;

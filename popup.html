@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- Source Codes By CodingNepal - www.codingnepalweb.com -->
-<html lang="en" style="min-width: 400px;">
+<html lang="en" style="min-width: 450px;">
 
 <head>
   <meta charset="UTF-8" />
@@ -14,15 +14,15 @@
 </head>
 
 <body>
-  <div id="loading_container" style="background-color: #f9ecdb;">
-    <div style="text-align: center;">
+  <div id="loading_container">
+    <div style=" text-align: center;">
       <img width="180px" style="margin-bottom: -30px; padding-bottom: 40px" src="./bolty_construcao.gif">
     </div>
   </div>
 
   <div class="login_form" style="display: none" id="form_container">
     <form action="https://app.bolten.io/api/login" method="post">
-      <div style="text-align: right;">
+      <div id="bolty-logo">
         <img width="80px" style="rotate: 15deg; margin-bottom: -30px; padding-bottom: 20px" src="./bolty_clique.png">
       </div>
       <h3>Faça login com</h3>
@@ -37,80 +37,83 @@
         <input type="password" id="password" placeholder="Digite sua senha" required />
       </div>
       <button id="loginButton" type="submit">Log In</button>
-      <p class="sign_up">Ainda não tem uma conta? <a href="https://app.bolten.io/pt" target="_blank">Cadastre-se</a></p>
-      <div class="notice">
-        <p class="sign_up">Essa extensão suporta apenas Login com usuário e Senha. Se você faz Login via
-          <b>Google</b>,
-          <b>Facebook</b> ou <b>Microsoft</b>, desautentique-se do sistema e cadastre a sua senha <a
-            href="https://app.bolten.io/pt/users/password/new" target="_blank">aqui</a>.
+      <p class="sign_up">Para usar a extensão você precisa <a href="https://app.bolten.io/pt" target="_blank"><b>estar
+            cadastrado</b></a></p>
+      <div id="notice-not-supported">
+        <p><i class="sign_up" style="color: #aaa">Essa extensão não suporta Login via Google, Facebook ou Microsoft</i>
         </p>
       </div>
     </form>
   </div>
 
-  <div id="already_logged_in_container" style="display: none; background-color: #f9ecdb;">
+  <div id="already_logged_in_container" style="display: none;">
     <div style="text-align: center;">
       <img width="120px" style="margin-bottom: -30px; padding-bottom: 20px" src="./bolty_boas_vindas.png">
     </div>
-    <h2>Você está logado :)</h2>
-    <p>Mantenha o WhatsApp Web aberto e feche esta janela.</p>
-    <div class="notice">
-      <p class="sign_out">Ou clique <a id="logoutLink" href="#">aqui</a> para fazer Logout</p>
+    <div class="message-container">
+      <h2>Você está logado :)</h2>
+      <p>Mantenha o WhatsApp Web aberto e feche esta janela.</p>
+      <div class="notice">
+        <p class="sign_out">Ou clique <a id="logoutLink" href="#">aqui</a> para fazer Logout</p>
+      </div>
     </div>
   </div>
 
-  <div id="whatsapp_web_not_opened" style="display: none; background-color: #f9ecdb;">
+  <div id="whatsapp_web_not_opened" style="display: none;">
     <div style="text-align: center;">
       <img width="120px" style="margin-bottom: -30px; padding-bottom: 40px" src="./bolty_erro.png">
     </div>
-    <h2>O WhatsApp Web está aberto?</h2>
-    <div class="notice">
-      <p>Abra uma aba do Whatsapp Web nesse mesmo browser. Caso já exista uma aba aberta, atualize-a e tente novamente.
+    <div class="message-container">
+      <h2>O WhatsApp Web está aberto?</h2>
+      <div class="notice">
+        <p>Abra uma aba do Whatsapp Web nesse mesmo browser. Caso já exista uma aba aberta, atualize-a e tente
+          novamente.
+      </div>
     </div>
     </p>
   </div>
 
-  <div id="contact_info" style="display: none; background-color: #f9ecdb;">
-    <div class="notice" style="display: flex; justify-content: space-between; align-items: center; height: 100%;">
+  <div id="contact_info" style="display: none;">
+    <div class="online-status"
+      style="display: flex; justify-content: space-between; align-items: center; height: 100%;">
       <div id="online_badge" style="color:green; display: none;"><b style="font-size:large">•</b> Transmissão Online
       </div>
       <div id="offline_badge" style="color:red; display: none;"><b style="font-size:large">•</b> Transmissão Offline
       </div>
       <div class="sign_out"><a id="logoutLinkContact" href="#">Logout</a></div>
     </div>
-    <div id="contact_main_area">
-      <div id="contact_photo">
-        <img id="contact_photo_img" src="" alt="Contact Photo" />
+    <div id="contact_subinfo">
+      <div id="contact_main_area">
+        <div id="contact_photo">
+          <img id="contact_photo_img" src="" alt="Contact Photo" />
+        </div>
+        <div id="contact_main_info">
+          <h2 id="contact_name"></h2>
+          <h4 id="contact_phone_number"></h4>
+          <span id="contact_external_id" style="display: none"></span>
+        </div>
       </div>
-      <div id="contact_info">
-        <h2 id="contact_name"></h2>
-        <h4 id="contact_phone_number"></h4>
-        <span id="contact_external_id" style="display: none"></span>
+      <h3 id="entries_info"></h3>
+      <div id="contact_index" style="display: none;">
+        <div id="contacts_container"></div>
+        <div id="show_contact_craete_notice">
+          <p>Clique <a id="showContactCreate" href="#">aqui</a> para criar outra entrada para este
+            contato</p>
+        </div>
       </div>
-    </div>
-    <hr>
-    <h3 id="entries_info"></h3>
-    <div id="contact_index" style="display: none;">
-      <div id="contacts_container"></div>
-      <div id="showContactCreateNotice">
-        <p>Clique <a id="showContactCreate" href="#">aqui</a> para criar outra entrada para este
-          contato</p>
+      <div id="contact_create" style="display: none;">
+        <div class="notice">
+          <p id="entries_sub_info">Onde gostaria de adicioná-lo?</p>
+        </div>
+        <div id="dropdown_container"></div>
+        <div id="mapping_container"></div>
+        <div id="contact_submit">
+          <div id="contact_preview_subtitle"></div>
+        </div>
       </div>
-    </div>
-    <div id="contact_create" style="display: none;">
-      <div class="notice">
-        <p id="entries_sub_info">Onde gostaria de adicioná-lo?</p>
-      </div>
-      <div id="dropdown_container"></div>
-      <div id="mapping_container"></div>
-      <div id="contact_submit">
-        <div id="contact_preview_subtitle"></div>
-      </div>
-    </div>
-    <div style="display: flex; align-items: center;">
-      <strong>
+      <div style="display: flex; align-items: center;">
         <p id="mapping_warnings"></p>
-      </strong>
+      </div>
     </div>
   </div>
   </div>

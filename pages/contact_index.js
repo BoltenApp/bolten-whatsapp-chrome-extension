@@ -45,7 +45,7 @@ export function showContactIndex(contacts) {
   for (const contact of contacts) {
     const tableBody = createTable(contact.id);
     const link = createLink(`${contact.component_name} (${entityMapping[contact.entity_type].name})`, contact.url)
-    addValueToTable("Encontrado em", link, tableBody);
+    addValueToTable("Ferramenta", link, tableBody);
 
     for (let key in contact.data) {
       if (contact.data.hasOwnProperty(key)) {
