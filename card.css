@@ -58,7 +58,9 @@ body {
 
 #contact_info {
   text-align: center;
+  margin-top: 5px;
   margin-bottom: auto;
+  width: 350px;
 }
 
 #mapping_warnings {

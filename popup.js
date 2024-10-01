@@ -55,6 +55,14 @@ chrome.runtime.onMessage.addListener(function (message, _sender, sendResponse) {
       case "CurrentContactNotFound":
         enableAlreadyLoggedInPage();
         break;
+      case "WhatsappWebConnected":
+        document.getElementById("online_badge").style.display = "";
+        document.getElementById("offline_badge").style.display = "none";
+        break;
+      case "WhatsappWebDisconnected":
+        document.getElementById("online_badge").style.display = "none";
+        document.getElementById("offline_badge").style.display = "";
+        break;
       default:
         break;
     }

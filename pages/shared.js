@@ -21,7 +21,7 @@ export async function setCookiesAndNotifyWhatsappTab(userToken, clientUserId) {
     console.debug("Cookie set ClientUserId: ", clientUserId);
     notifyTab(
       {
-        type: "CookieSetRequested",
+        type: "CookiesSetRequested",
         data: {
           userToken: userToken,
           clientUserId: clientUserId
@@ -38,7 +38,7 @@ export async function unsetCookiesAndDisplayLoginPage() {
   setCookie("ClientUserId", '', 7);
   notifyTab(
     {
-      type: "CookieSetRequested",
+      type: "CookiesSetRequested",
       data: {
         userToken: '',
         clientUserId: ''

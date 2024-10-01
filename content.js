@@ -26,7 +26,11 @@ function handleCookieSetRequested(data) {
 		setStorage("ClientUserId", clientUserId);
 
 		connect().then(() => {
-			chrome.runtime.sendMessage("WhatsappWebConnected");
+			chrome.runtime.sendMessage({
+				data: {
+					type: "WhatsappWebConnected"
+				}
+			});
 		});
 	}
 }
@@ -36,7 +40,11 @@ function handleCurrentContactRequested(_data) {
 }
 
 window.addEventListener("WhatsappWebDisconnected", () => {
-	chrome.runtime.sendMessage("WhatsappWebDisconnected");
+	chrome.runtime.sendMessage({
+		data: {
+			type: "WhatsappWebDisconnected"
+		}
+	});
 });
 
 // Whatsapp event listeners
@@ -86,5 +94,9 @@ window.onbeforeunload = () => {
 	console.debug("[Event Listener] Disconecting from WPP Web")
 
 	disconnect();
-	chrome.runtime.sendMessage("WhatsappWebDisconnected");
+	chrome.runtime.sendMessage({
+		data: {
+			type: "WhatsappWebDisconnected"
+		}
+	});
 };
