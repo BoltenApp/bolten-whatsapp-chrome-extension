@@ -1,37 +1,3 @@
-/* :root {
-  font-size: 20px;
-}
-
-*,
-*:before,
-*:after {
-  box-sizing: border-box;
-}
-
-p {
-  margin: 0;
-}
-
-p:not(:last-child) {
-  margin-bottom: 1.5em;
-}
-
-body {
-  font: 1em/1.618 Inter, sans-serif;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  min-height: 100vh;
-  padding: 30px;
-  margin: 0;
-
-  color: #224;
-  background:
-    url(https://source.unsplash.com/E8Ufcyxz514/2400x1823) center / cover no-repeat fixed;
-} */
-
 .card {
   max-width: 200px;
   min-height: 50px;
