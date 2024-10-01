@@ -12,7 +12,7 @@ async function connect() {
     return;
   }
 
-  webSocket = new WebSocket(`${webSocketUrl}?api_token=${apiToken}`);
+  await flushWebSocket(apiToken);
 
   webSocket.onopen = (_event) => {
     subscribeToBolten();
@@ -25,6 +25,14 @@ async function connect() {
   webSocket.onclose = (_event) => {
     window.dispatchEvent(new CustomEvent("WhatsappWebDisconnected"));
   };
+}
+
+async function flushWebSocket(apiToken) {
+  if (webSocket !== null) {
+    unsubscribeToBolten()
+  }
+
+  webSocket = new WebSocket(`${webSocketUrl}?api_token=${apiToken}`);
 }
 
 function subscribeToBolten() {
@@ -43,7 +51,24 @@ function subscribeToBolten() {
   webSocket.send(JSON.stringify(subscribeCommand));
 }
 
+function unsubscribeToBolten() {
+  if (!apiToken || !clientUserId) {
+    return;
+  }
+
+  const unsubscribeCommand = {
+    command: 'unsubscribe',
+    identifier: JSON.stringify({
+      id: clientUserId,
+      channel: channel
+    }),
+  };
+
+  webSocket.send(JSON.stringify(unsubscribeCommand));
+}
+
 function handleBoltenMessages(event) {
+  console.debug("Websocket event received", event)
   const message = JSON.parse(event.data).message;
 
   if (message) {
