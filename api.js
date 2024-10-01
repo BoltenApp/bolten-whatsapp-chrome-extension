@@ -93,7 +93,7 @@ export async function createContactByExternalId(apiToken, externalId, componentI
 };
 
 function componentsRouteFor(clientUserId) {
-  return `https://${Config.baseUrl}/api/v1/client_users/${clientUserId}/components?filter=mappable_to_whatsapp_contact.json`
+  return `https://${Config.baseUrl}/api/v1/client_users/${clientUserId}/components?filters=mappable_to_whatsapp_contact`
 }
 
 function createContactRouteFor(componentId) {

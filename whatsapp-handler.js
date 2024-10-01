@@ -90,7 +90,7 @@
 		const profilePicThumb = chat.__x_profilePicThumb?.__x_imgFull || profilePicUrl;
 
 		return {
-			senderName: chat.__x_formattedTitle,
+			senderName: chat.__x_contact?.__x_name || chat.__x_contact?.__x_verifiedName || chat.__x_contact?.__x_pushname || chat.__x_formattedTitle,
 			senderNumber: chat.__x_id.user,
 			senderId: chat.__x_id._serialized,
 			profilePicThumb: profilePicThumb,
