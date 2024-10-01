@@ -55,7 +55,7 @@ function showContactIndexOption() {
     return
   }
 
-  document.getElementById("showContactIndex").addEventListener("click", enableContactIndexPage);
+  document.getElementById("show_contact_index").addEventListener("click", enableContactIndexPage);
   document.getElementById("contact_index").style.display = "";
 }
 
@@ -103,7 +103,8 @@ function clearMappingSection() {
 function currentContact() {
   return {
     senderName: document.getElementById("contact_name").textContent,
-    senderNumber: document.getElementById("contact_phone_number").textContent,
+    formattedSenderNumber: document.getElementById("contact_phone_number").textContent,
+    senderNumber: document.getElementById("full_contact_phone_number").textContent,
     senderId: document.getElementById("contact_external_id").textContent,
     profilePicThumb: document.getElementById("contact_photo_img").src
   }
@@ -116,7 +117,7 @@ function fillInComponentMappingDetails(mapping) {
   const payload = {};
 
   payload[mapping.full_name] = currentContact().senderName;
-  payload[mapping.whatsapp_phone_number] = currentContact().senderNumber;
+  payload[mapping.whatsapp_phone_number] = currentContact().formattedSenderNumber;
 
   const contactSubmitArea = document.querySelector(`#contact_submit`);
   const contactPreview = createTable("contact_preview");

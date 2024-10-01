@@ -28,10 +28,13 @@ export function showContactInfo(contacts, whatsappInfo) {
 function fillPageWithWhatsAppInfo(whatsappInfo) {
   clearElementText("contact_name");
   clearElementText("contact_phone_number");
+  clearElementText("full_contact_phone_number");
+  clearElementText("contact_external_id");
   clearElementText("mapping_warnings");
 
   fillElementWithText("contact_name", whatsappInfo.senderName);
   fillElementWithText("contact_phone_number", `${whatsappInfo.senderNumber.slice(2)}`);
+  fillElementWithText("full_contact_phone_number", whatsappInfo.senderNumber);
   fillElementWithText("contact_external_id", whatsappInfo.senderId);
   fillElementWithSrc("contact_photo_img", whatsappInfo.profilePicThumb);
 }
@@ -40,7 +43,7 @@ function showContactCount(contactCount) {
   clearElementText("entries_info");
 
   if (contactCount > 0) {
-    const link = createAnchor(`${contactCount} entrada(s) encontrada(s) para esse contato`, "showContactIndex")
+    const link = createAnchor(`${contactCount} entrada(s) encontrada(s) para esse contato`, "show_contact_index")
     fillElementWithText("entries_info", link)
   } else {
     fillElementWithText("entries_info", "Esse contato não foi encontrado no seu Funil")

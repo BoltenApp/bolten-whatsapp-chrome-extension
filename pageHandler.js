@@ -32,6 +32,7 @@ export function enableLoadingPage() {
 }
 
 export function enableContactIndexPage() {
+  clearElementText("mapping_warnings")
   enableContactSubPageByElementId("contact_index");
 }
 
