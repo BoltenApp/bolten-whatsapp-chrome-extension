@@ -1,5 +1,5 @@
 var Config = (function () {
-  const baseUrl = "app.bolten.io"
+  const baseUrl = "bolten.io"
   const whatsappUrl = "https://web.whatsapp.com"
   const channel = "ChatApp::WhatsappWebClientUserChannel"
 
