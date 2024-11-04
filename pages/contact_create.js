@@ -125,6 +125,28 @@ function fillInComponentMappingDetails(mapping) {
   addValueToTable(mapping.whatsapp_phone_number, currentContact().senderNumber, contactPreview);
   contactSubmitArea.appendChild(contactPreview);
 
+  for (const parentComponent in mapping.available_parent_components) {
+    const pcRadio = createRadioElement(parentComponent.id, parentComponent.name, false);
+    contactPreview.appendChild(pcRadio);
+  }
+
+  generateCreateContactButton(userToken, componentId, payload, contactPreview);
+}
+
+function createRadioElement(id, name, checked) {
+  var radioHtml = '<input id="", type="radio" name="' + name + '"';
+  if (checked) {
+    radioHtml += ' checked="checked"';
+  }
+  radioHtml += '/>';
+
+  var radioFragment = document.createElement('div');
+  radioFragment.innerHTML = radioHtml;
+
+  return radioFragment.firstChild;
+}
+
+function generateCreateContactButton(userToken, componentId, payload, contactPreview) {
   const p = document.createElement('p');
   const button = document.createElement('button');
   button.setAttribute('id', 'create_contact_button');
