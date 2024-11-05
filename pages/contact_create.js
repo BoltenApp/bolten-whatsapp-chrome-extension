@@ -125,25 +125,39 @@ function fillInComponentMappingDetails(mapping) {
   addValueToTable(mapping.whatsapp_phone_number, currentContact().senderNumber, contactPreview);
   contactSubmitArea.appendChild(contactPreview);
 
-  for (const parentComponent in mapping.available_parent_components) {
-    const pcRadio = createRadioElement(parentComponent.id, parentComponent.name, false);
-    contactPreview.appendChild(pcRadio);
-  }
-
+  generateParentComponentRadios(mapping, contactPreview);
   generateCreateContactButton(userToken, componentId, payload, contactPreview);
 }
 
+function generateParentComponentRadios(mapping, contactPreview) {
+  if (mapping.available_parent_components.length > 0) {
+    const formFragment = document.createElement('div');
+    formFragment.setAttribute('class', 'parent-components');
+    var formHtml = '<form>';
+
+    for (const parentComponent of mapping.available_parent_components) {
+      formHtml += createRadioElement(parentComponent.id, parentComponent.name, false);
+    }
+
+    formHtml += '</form>';
+    formFragment.innerHTML = formHtml;
+
+    contactPreview.appendChild(formFragment);
+  }
+}
+
 function createRadioElement(id, name, checked) {
-  var radioHtml = '<input id="", type="radio" name="' + name + '"';
+  var radioHtml = '<input id="' + id + '" type="radio" name="' + name + '" value="' + name + '"';
   if (checked) {
     radioHtml += ' checked="checked"';
   }
-  radioHtml += '/>';
+  radioHtml += '>';
+  radioHtml += '<label for="' + id + '">' + `Adicionar contato a ${name}` + '</label><br>';
 
   var radioFragment = document.createElement('div');
   radioFragment.innerHTML = radioHtml;
 
-  return radioFragment.firstChild;
+  return radioHtml
 }
 
 function generateCreateContactButton(userToken, componentId, payload, contactPreview) {

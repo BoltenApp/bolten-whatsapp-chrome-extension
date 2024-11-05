@@ -1,5 +1,5 @@
 var Config = (function () {
-  const baseUrl = "bolten.io"
+  const baseUrl = "equipped-concise-owl.ngrok-free.app"
   const whatsappUrl = "https://web.whatsapp.com"
   const channel = "ChatApp::WhatsappWebClientUserChannel"
 

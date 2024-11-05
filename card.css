@@ -27,6 +27,17 @@
   border-bottom: 1px solid #aaa;
 }
 
+.parent-components {
+  margin-top: 15px;
+  font-weight: 600;
+}
+
+.parent-components input {
+  vertical-align: middle;
+  margin-top: -2px;
+  margin-right: 8px;
+}
+
 .card-footer {
   font-size: 0.65em;
   color: #446;
