@@ -136,8 +136,10 @@ function generateParentComponentRadios(mapping, contactPreview) {
     formFragment.setAttribute('class', 'parent-components');
     var formHtml = '<form>';
 
+    formHtml += createRadioElement(null, "Não adicionar a nenhum funil", true);
+
     for (const parentComponent of mapping.available_parent_components) {
-      formHtml += createRadioElement(parentComponent.id, parentComponent.name, false);
+      formHtml += createRadioElement(parentComponent.id, `Adicionar contato a  ${parentComponent.name}`, false);
     }
 
     formHtml += '</form>';
@@ -153,7 +155,7 @@ function createRadioElement(id, name, checked) {
     radioHtml += ' checked="checked"';
   }
   radioHtml += '>';
-  radioHtml += '<label for="' + id + '">' + `Adicionar contato a ${name}` + '</label><br>';
+  radioHtml += '<label for="' + id + '">' + `${name}` + '</label><br>';
 
   var radioFragment = document.createElement('div');
   radioFragment.innerHTML = radioHtml;
