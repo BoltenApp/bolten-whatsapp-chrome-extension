@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 // Listeners from WhatsApp Web Chrome tab
 chrome.runtime.onMessage.addListener(function (message, _sender, sendResponse) {
   if (message.data) {
+    console.debug("Received message from content script", message.data);
     switch (message.data.type) {
       case "CurrentContactReceived":
         transitionToContactsPage(message.data.contact);

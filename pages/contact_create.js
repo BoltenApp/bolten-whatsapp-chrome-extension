@@ -33,6 +33,7 @@ async function showComponentSelectionDropdown() {
     } else {
       const components = await response.json();
       fillInComponentSelect(components);
+      showComponentMappingDetails();
     }
   });
 }
