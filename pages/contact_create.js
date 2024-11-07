@@ -130,7 +130,7 @@ function fillInComponentMappingDetails(mapping) {
 }
 
 function generateParentComponentRadios(mapping, contactPreview) {
-  if (mapping.available_parent_components.length > 0) {
+  if (mapping.available_parent_components && mapping.available_parent_components.length > 0) {
     const formFragment = document.createElement('div');
     formFragment.setAttribute('class', 'parent-components');
     var formHtml = '<form>';
@@ -147,7 +147,7 @@ function generateParentComponentRadios(mapping, contactPreview) {
 }
 
 function createRadioElement(id, name, checked) {
-  var radioHtml = '<input id="' + id + '" type="radio" name="' + name + '" value="' + name + '"';
+  var radioHtml = '<input id="' + id + '" type="radio" name="parentComponent" value="' + name + '"';
   if (checked) {
     radioHtml += ' checked="checked"';
   }
@@ -173,7 +173,9 @@ function generateCreateContactButton(userToken, componentId, payload, contactPre
 }
 
 export async function createContact(apiToken, externalId, componentId, payload) {
-  await createContactByExternalId(apiToken, externalId, componentId, payload)
+  const parentComponentId = document.querySelector('input[name="parentComponent"]:checked')?.id;
+
+  await createContactByExternalId(apiToken, externalId, componentId, payload, parentComponentId)
     .then(async (response) => {
       if (response.status === 401) {
         await unsetCookiesAndDisplayLoginPage();
