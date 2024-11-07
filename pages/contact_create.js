@@ -126,6 +126,44 @@ function fillInComponentMappingDetails(mapping) {
   addValueToTable(mapping.whatsapp_phone_number, currentContact().senderNumber, contactPreview);
   contactSubmitArea.appendChild(contactPreview);
 
+  generateParentComponentRadios(mapping, contactPreview);
+  generateCreateContactButton(userToken, componentId, payload, contactPreview);
+}
+
+function generateParentComponentRadios(mapping, contactPreview) {
+  if (mapping.available_parent_components && mapping.available_parent_components.length > 0) {
+    const formFragment = document.createElement('div');
+    formFragment.setAttribute('class', 'parent-components');
+    var formHtml = '<form>';
+
+    formHtml += createRadioElement(null, "Não adicionar a nenhum funil", true);
+
+    for (const parentComponent of mapping.available_parent_components) {
+      formHtml += createRadioElement(parentComponent.id, `Adicionar contato a  ${parentComponent.name}`, false);
+    }
+
+    formHtml += '</form>';
+    formFragment.innerHTML = formHtml;
+
+    contactPreview.appendChild(formFragment);
+  }
+}
+
+function createRadioElement(id, name, checked) {
+  var radioHtml = '<input id="' + id + '" type="radio" name="parentComponent" value="' + name + '"';
+  if (checked) {
+    radioHtml += ' checked="checked"';
+  }
+  radioHtml += '>';
+  radioHtml += '<label for="' + id + '">' + `${name}` + '</label><br>';
+
+  var radioFragment = document.createElement('div');
+  radioFragment.innerHTML = radioHtml;
+
+  return radioHtml
+}
+
+function generateCreateContactButton(userToken, componentId, payload, contactPreview) {
   const p = document.createElement('p');
   const button = document.createElement('button');
   button.setAttribute('id', 'create_contact_button');
@@ -138,7 +176,9 @@ function fillInComponentMappingDetails(mapping) {
 }
 
 export async function createContact(apiToken, externalId, componentId, payload) {
-  await createContactByExternalId(apiToken, externalId, componentId, payload)
+  const parentComponentId = document.querySelector('input[name="parentComponent"]:checked')?.id;
+
+  await createContactByExternalId(apiToken, externalId, componentId, payload, parentComponentId)
     .then(async (response) => {
       if (response.status === 401) {
         await unsetCookiesAndDisplayLoginPage();

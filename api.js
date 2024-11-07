@@ -83,7 +83,7 @@ export async function createContactByExternalId(apiToken, externalId, componentI
       "Authorization": `Bearer ${apiToken}`
     },
     body: JSON.stringify({
-      ...(parentComponentId && { "parent_component_id": parentComponentId }),
+      ...(parentComponentId && parentComponentId != 'null' && { "parent_component_id": parentComponentId }),
       "whatsapp_contact": {
         "data": data,
         "external_id": externalId
