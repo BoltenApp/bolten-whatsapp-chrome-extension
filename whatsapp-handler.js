@@ -46,7 +46,7 @@
 	window.addEventListener("FetchCurrentContact", async event => {
 		const chat = WPP.chat.getActiveChat();
 
-		if (!chat || !chat.__x_isUser) {
+		if (!chat || (chat.__x_presence?.__x_isUser != undefined && !chat.__x_presence?.__x_isUser)) {
 			window.dispatchEvent(new CustomEvent("ContactNotFoucused"));
 
 			return;
